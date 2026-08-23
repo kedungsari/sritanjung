@@ -311,17 +311,15 @@ h1,h2,h3,h4{
   align-items:center;
   justify-content:center;
 }
-.hero-art svg{ width:100%; height:auto; max-width:460px; }
-.slide-illustration svg{ max-width:230px; margin-bottom:0.6rem; }
 
-/* ============ Flash Banner (Hero Carousel) ============ */
+/* ============ Flash Banner (Hero Photo Carousel) ============ */
 .flash-banner{
   position:relative;
   width:100%;
   max-width: 460px;
   border-radius: var(--radius-lg);
   overflow:hidden;
-  background: var(--paper);
+  background: var(--green-light);
   box-shadow: var(--shadow);
 }
 .flash-track{
@@ -329,70 +327,74 @@ h1,h2,h3,h4{
   transition: transform .55s cubic-bezier(.65,.05,.36,1);
 }
 .flash-slide{
+  position:relative;
   min-width:100%;
   flex-shrink:0;
-  padding: 2.2rem 1.8rem 1.6rem;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  min-height: 380px;
+  aspect-ratio: 4 / 3.3;
+  overflow:hidden;
+  background: linear-gradient(135deg, var(--green-mid), var(--green));
 }
-.flash-slide.slide-illustration{ padding-bottom:0.5rem; }
-.flash-caption{
-  margin-top: -0.6rem;
-  font-family: var(--font-display);
-  font-weight:700;
-  color: var(--green-deep);
-  font-size:1.15rem;
+.flash-slide img{
+  width:100%; height:100%;
+  object-fit: cover;
+  display:block;
 }
+.flash-slide.no-photo{
+  display:flex; align-items:center; justify-content:center;
+  font-size:3.6rem;
+}
+.flash-overlay{
+  position:absolute; left:0; right:0; bottom:0;
+  padding: 2.2rem 1.5rem 1.4rem;
+  background: linear-gradient(to top, rgba(20,28,15,0.85) 0%, rgba(20,28,15,0.55) 45%, transparent 100%);
+  text-align:left;
+  color:#fff;
+}
+.flash-overlay .flash-badge{ margin-bottom:0.7rem; }
+.flash-overlay h3{
+  color:#fff;
+  font-size: 1.35rem;
+  margin-bottom:0.35rem;
+  line-height:1.2;
+}
+.flash-overlay p{
+  color: rgba(255,255,255,0.88);
+  font-size:0.9rem;
+  margin-bottom:1rem;
+  max-width:340px;
+}
+.flash-overlay .btn{ padding:10px 20px; font-size:0.85rem; }
+
 .flash-badge{
   display:inline-flex; align-items:center; gap:6px;
   background: #C0392B; color:#fff;
-  font-weight:800; font-size:0.78rem; letter-spacing:0.03em;
-  padding: 7px 16px; border-radius:100px;
-  margin-bottom: 1.2rem;
+  font-weight:800; font-size:0.74rem; letter-spacing:0.03em;
+  padding: 6px 14px; border-radius:100px;
   animation: flashPulse 1.6s ease-in-out infinite;
 }
-.flash-badge.badge-baru{ background: var(--green-deep); }
+.flash-badge.badge-baru{ background: var(--green-deep); animation-name: flashPulseGreen; }
 @keyframes flashPulse{
   0%,100%{ box-shadow: 0 0 0 0 rgba(192,57,43,0.45); }
   50%{ box-shadow: 0 0 0 9px rgba(192,57,43,0); }
 }
-.flash-badge.badge-baru{ animation-name: flashPulseGreen; }
 @keyframes flashPulseGreen{
   0%,100%{ box-shadow: 0 0 0 0 rgba(46,74,28,0.45); }
   50%{ box-shadow: 0 0 0 9px rgba(46,74,28,0); }
 }
-.flash-slide h3{ font-size:1.3rem; margin-bottom:1.1rem; }
-.flash-items{ width:100%; display:flex; flex-direction:column; gap:0.7rem; margin-bottom:1.3rem; }
-.flash-item{
-  display:flex; align-items:center; gap:0.8rem;
-  background: var(--cream-deep);
-  border-radius: var(--radius-sm);
-  padding: 0.7rem 0.9rem;
-  text-align:left;
-}
-.flash-item .ico{ font-size:1.5rem; flex-shrink:0; }
-.flash-item .info{ flex-grow:1; min-width:0; }
-.flash-item .info strong{ display:block; font-size:0.9rem; }
-.flash-item .info span{ font-size:0.78rem; color: var(--ink-soft); }
-.flash-item .price{ font-weight:800; color: var(--green-deep); font-size:0.9rem; white-space:nowrap; }
-.flash-item .price .old{ text-decoration:line-through; color:#a0a094; font-weight:600; font-size:0.75rem; margin-right:4px; }
-.flash-empty{ color: var(--ink-soft); font-size:0.92rem; margin-bottom:1rem; }
 
 .flash-dots{
   display:flex; justify-content:center; gap:8px;
-  padding: 0.9rem 0 1.3rem;
+  position:absolute; left:0; right:0; bottom:10px;
+  z-index:2;
 }
 .flash-dot{
-  width:9px; height:9px; border-radius:50%;
-  background: var(--green-light);
+  width:8px; height:8px; border-radius:50%;
+  background: rgba(255,255,255,0.55);
   border:none; cursor:pointer; padding:0;
   transition: background .25s ease, transform .25s ease;
 }
-.flash-dot.active{ background: var(--green-deep); transform: scale(1.25); }
+.flash-dot.active{ background: #fff; transform: scale(1.3); }
+
 
 /* ============ About / Features ============ */
 .about{ padding: 6rem 0 5rem; }
@@ -974,58 +976,7 @@ h1,h2,h3,h4{
     </div>
     <div class="hero-art reveal">
       <div class="flash-banner" id="flashBanner">
-        <div class="flash-track" id="flashTrack">
-          <div class="flash-slide slide-illustration">
-            <svg viewBox="0 0 420 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi kebun dan hasil panen KWT Sri Tanjung">
-              <circle cx="210" cy="210" r="200" fill="#EDE5CF"/>
-              <circle cx="330" cy="90" r="46" fill="#F3D488"/>
-              <g opacity="0.9">
-                <path d="M60 300 Q 210 240 360 300 L 360 380 L 60 380 Z" fill="#86A657"/>
-                <path d="M60 320 Q 210 270 360 320 L 360 380 L 60 380 Z" fill="#6E8F42"/>
-              </g>
-              <!-- baskets of produce -->
-              <g transform="translate(150,230)">
-                <ellipse cx="40" cy="70" rx="55" ry="16" fill="#8B6B45" opacity="0.35"/>
-                <path d="M0 40 L80 40 L70 85 Q40 96 10 85 Z" fill="#B98F55"/>
-                <path d="M0 40 L80 40 L76 50 L4 50 Z" fill="#8B6B45"/>
-                <circle cx="20" cy="30" r="16" fill="#C0392B" opacity="0"/>
-                <circle cx="24" cy="28" r="15" fill="#D97757" opacity="0.0"/>
-                <circle cx="18" cy="26" r="14" fill="#E3A93C"/>
-                <circle cx="38" cy="20" r="16" fill="#DDEAC2" stroke="#6E8F42" stroke-width="3"/>
-                <circle cx="58" cy="27" r="13" fill="#E3A93C"/>
-                <path d="M38 5 Q30 -8 20 2" stroke="#6E8F42" stroke-width="4" fill="none" stroke-linecap="round"/>
-              </g>
-              <!-- leaf plant left -->
-              <g transform="translate(75,170)">
-                <path d="M20 90 C -10 60 -6 20 20 0 C 30 30 30 60 20 90 Z" fill="#6E8F42"/>
-                <path d="M45 95 C 15 70 15 30 45 5 C 58 35 55 68 45 95 Z" fill="#86A657"/>
-              </g>
-              <!-- leaf plant right -->
-              <g transform="translate(300,190)">
-                <path d="M0 80 C -20 50 -14 15 10 -5 C 22 25 22 55 8 80 Z" fill="#86A657"/>
-              </g>
-              <!-- sun rays -->
-              <g stroke="#E3A93C" stroke-width="4" stroke-linecap="round" opacity="0.7">
-                <line x1="330" y1="24" x2="330" y2="8"/>
-                <line x1="376" y1="46" x2="388" y2="36"/>
-                <line x1="284" y1="46" x2="272" y2="36"/>
-              </g>
-            </svg>
-            <span class="flash-caption">🌿 Segar Setiap Hari</span>
-          </div>
-
-          <div class="flash-slide slide-promo" id="flashPromoSlide">
-            <span class="flash-badge">⚡ PROMO HARI INI</span>
-            <div class="flash-items" id="flashPromoItems"></div>
-            <a href="#produk" class="btn btn-primary btn-sm" id="flashPromoBtn">Lihat Semua Promo</a>
-          </div>
-
-          <div class="flash-slide slide-baru" id="flashBaruSlide">
-            <span class="flash-badge badge-baru">🆕 PRODUK BARU</span>
-            <div class="flash-items" id="flashBaruItems"></div>
-            <a href="#produk" class="btn btn-primary btn-sm" id="flashBaruBtn">Lihat Semua Produk</a>
-          </div>
-        </div>
+        <div class="flash-track" id="flashTrack"><!-- diisi oleh JavaScript dari HERO_SLIDES --></div>
         <div class="flash-dots" id="flashDots"></div>
       </div>
     </div>
@@ -1296,10 +1247,10 @@ function waLink(admin, text){
    status: null | 'baru' | 'promo' | 'habis'
    promoPrice: isi jika status 'promo' (harga setelah diskon) */
 const PRODUCTS = [
-  { id:'p1', cat:'sayur', icon:'🥬', name:'Bayam Merah Segar', unit:'per ikat', price:5000, desc:'Dipetik pagi hari dari pekarangan warga, segar dan bebas pestisida kimia.', status:'baru' },
-  { id:'p2', cat:'sayur', icon:'🥦', name:'Kangkung Segar', unit:'per ikat', price:4000, desc:'Kangkung darat pilihan, renyah dan cocok untuk tumis sehari-hari.', status:null },
-  { id:'p3', cat:'sayur', icon:'🌶️', img:'produk-foto/cabai.jpg', name:'Cabai Rawit Segar', unit:'per ons', price:8000, desc:'Cabai rawit hasil kebun, tingkat kepedasan pas untuk sambal rumahan.', status:'promo', promoPrice:6500 },
-  { id:'p4', cat:'sayur', icon:'🍆', name:'Terong Ungu', unit:'per kg', price:9000, desc:'Terong segar ukuran sedang, empuk saat diolah jadi balado atau lalap.', status:null },
+  { id:'p1', cat:'sayur', icon:'🥬', img:'produk-foto/tomat.jpg', name:'Bayam Merah Segar', unit:'per ikat', price:5000, desc:'Dipetik pagi hari dari pekarangan warga, segar dan bebas pestisida kimia.', status:'baru' },
+  { id:'p2', cat:'sayur', icon:'🥦', img:'produk-foto/cabai.jpg', name:'Kangkung Segar', unit:'per ikat', price:4000, desc:'Kangkung darat pilihan, renyah dan cocok untuk tumis sehari-hari.', status:null },
+  { id:'p3', cat:'sayur', icon:'🌶️', img:'produk-foto/lele.jpg', name:'Cabai Rawit Segar', unit:'per ons', price:8000, desc:'Cabai rawit hasil kebun, tingkat kepedasan pas untuk sambal rumahan.', status:'promo', promoPrice:6500 },
+  { id:'p4', cat:'sayur', icon:'🍆', img:'produk-foto/kambing.jpg', name:'Terong Ungu', unit:'per kg', price:9000, desc:'Terong segar ukuran sedang, empuk saat diolah jadi balado atau lalap.', status:null },
   { id:'p5', cat:'sayur', icon:'🌿', name:'Daun Kelor', unit:'per bungkus', price:3000, desc:'Daun kelor pilihan, kaya nutrisi, cocok untuk sayur bening.', status:null },
   { id:'p6', cat:'sayur', icon:'🥒', name:'Timun Segar', unit:'per kg', price:6000, desc:'Timun renyah untuk lalapan maupun acar, dipanen langsung dari kebun.', status:'habis' },
   { id:'p7', cat:'olahan', icon:'🍌', name:'Keripik Pisang', unit:'per bungkus 200g', price:12000, desc:'Digoreng renyah dengan minyak baru, tanpa bahan pengawet.', status:'baru' },
@@ -1554,37 +1505,69 @@ document.getElementById('navWaBtnMobile').addEventListener('click', openAdminPic
   if(el) el.href = waLink(getDefaultAdmin(), DEFAULT_TEXT);
 });
 
-/* ================= Flash Banner (Hero Carousel) ================= */
-function renderFlashItems(containerId, emptyMsg, filterFn){
-  const el = document.getElementById(containerId);
-  const list = PRODUCTS.filter(filterFn).slice(0, 3);
-  if(list.length === 0){
-    el.innerHTML = `<p class="flash-empty">${emptyMsg}</p>`;
-    return;
-  }
-  el.innerHTML = list.map(p => `
-    <div class="flash-item">
-      <span class="ico">${p.icon}</span>
-      <div class="info"><strong>${p.name}</strong><span>${p.unit}</span></div>
-      <span class="price">${p.status === 'promo' && p.promoPrice ? `<span class="old">Rp ${p.price.toLocaleString('id-ID')}</span>Rp ${p.promoPrice.toLocaleString('id-ID')}` : `Rp ${p.price.toLocaleString('id-ID')}`}</span>
-    </div>`).join('');
-}
-renderFlashItems('flashPromoItems', 'Belum ada promo saat ini. Pantau terus ya!', p => p.status === 'promo');
-renderFlashItems('flashBaruItems', 'Belum ada produk baru saat ini.', p => p.status === 'baru');
+/* ================= Flash Banner (Hero Photo Carousel) =================
+   CATATAN UNTUK ADMIN: Ini banner foto di beranda (paling atas).
+   Cukup ganti path "img" ke foto Anda sendiri (dari folder gallery/
+   atau produk-foto/, atau buat folder baru misal "banner/").
+
+   badge   : teks kecil berkedip di atas judul, kosongkan/hapus jika tak perlu
+   badgeType: 'promo' (merah) atau 'baru' (hijau) - warna badge
+   title   : judul besar di foto
+   subtitle: kalimat pendek di bawah judul
+   cta     : teks tombol, link: tujuan tombol (mis. '#produk')
+
+   Tambah/kurangi slide dengan menambah/menghapus baris di array ini. */
+const HERO_SLIDES = [
+  {
+    img: 'logo.png',
+    badge: null, badgeType: null,
+    title: 'Selamat Datang',
+    subtitle: 'Sayur segar dipetik langsung untuk meja keluarga Anda.',
+  },
+  {
+    img: 'produk-foto/cabai.jpg',
+    badge: '⚡ Promo Hari Ini', badgeType: 'promo',
+    title: 'Diskon Spesial Minggu Ini',
+    subtitle: 'Cabai Rawit Segar mulai Rp 6.500/ons.',
+    cta: 'Lihat Promo', link: '#produk'
+  },
+  {
+    img: 'produk-foto/tomat.jpg',
+    badge: '🆕 Produk Baru', badgeType: 'baru',
+    title: 'Kerajinan Tangan Terbaru',
+    subtitle: 'Anyaman & rajutan buatan tangan ibu-ibu KWT.',
+    cta: 'Lihat Semua', link: '#produk'
+  },
+];
 
 const flashTrack = document.getElementById('flashTrack');
-const flashSlides = flashTrack.querySelectorAll('.flash-slide');
 const flashDotsEl = document.getElementById('flashDots');
 let flashIndex = 0;
 let flashTimer;
 
-flashSlides.forEach((_, i) => {
-  const dot = document.createElement('button');
-  dot.className = 'flash-dot' + (i === 0 ? ' active' : '');
-  dot.setAttribute('aria-label', 'Slide ' + (i+1));
-  dot.addEventListener('click', () => goToFlash(i));
-  flashDotsEl.appendChild(dot);
-});
+function renderHeroSlides(){
+  flashTrack.innerHTML = HERO_SLIDES.map(s => `
+    <div class="flash-slide">
+      <img src="${s.img}" alt="${s.title}" loading="lazy"
+           onerror="this.parentElement.classList.add('no-photo'); this.remove();">
+      <div class="flash-overlay">
+        ${s.badge ? `<span class="flash-badge ${s.badgeType === 'baru' ? 'badge-baru' : ''}">${s.badge}</span>` : ''}
+        <h3>${s.title}</h3>
+        <p>${s.subtitle || ''}</p>
+        ${s.cta ? `<a href="${s.link || '#produk'}" class="btn btn-primary btn-sm">${s.cta}</a>` : ''}
+      </div>
+    </div>`).join('');
+
+  flashDotsEl.innerHTML = '';
+  HERO_SLIDES.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'flash-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Slide ' + (i+1));
+    dot.addEventListener('click', () => goToFlash(i));
+    flashDotsEl.appendChild(dot);
+  });
+}
+renderHeroSlides();
 
 function goToFlash(i){
   flashIndex = i;
@@ -1592,10 +1575,10 @@ function goToFlash(i){
   flashDotsEl.querySelectorAll('.flash-dot').forEach((d, di) => d.classList.toggle('active', di === i));
   restartFlashTimer();
 }
-function nextFlash(){ goToFlash((flashIndex + 1) % flashSlides.length); }
+function nextFlash(){ goToFlash((flashIndex + 1) % HERO_SLIDES.length); }
 function restartFlashTimer(){
   clearInterval(flashTimer);
-  flashTimer = setInterval(nextFlash, 4500);
+  if(HERO_SLIDES.length > 1) flashTimer = setInterval(nextFlash, 4500);
 }
 restartFlashTimer();
 document.getElementById('flashBanner').addEventListener('mouseenter', () => clearInterval(flashTimer));
