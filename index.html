@@ -509,6 +509,37 @@ h1,h2,h3,h4{
   display:block;
 }
 
+/* Slide foto produk (1-3 foto per produk) */
+.pv-track{
+  display:flex;
+  height:100%;
+  transition: transform .35s ease;
+}
+.pv-slide{ height:100%; flex-shrink:0; }
+.pv-slide img{ width:100%; height:100%; object-fit:cover; display:block; }
+.pv-nav{
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:30px; height:30px; border-radius:50%;
+  background: rgba(255,255,255,0.92); color: var(--green-deep);
+  border:none; display:flex; align-items:center; justify-content:center;
+  font-size:1.15rem; line-height:1; cursor:pointer; z-index:3;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+  transition: background .2s ease, transform .2s ease;
+}
+.pv-nav:hover{ background:#fff; transform: translateY(-50%) scale(1.08); }
+.pv-prev{ left:8px; }
+.pv-next{ right:8px; }
+.pv-dots{
+  position:absolute; bottom:8px; left:0; right:0;
+  display:flex; justify-content:center; gap:5px; z-index:3;
+}
+.pv-dot{
+  width:6px; height:6px; border-radius:50%;
+  background: rgba(255,255,255,0.55); border:none; padding:0; cursor:pointer;
+  transition: width .2s ease, background .2s ease;
+}
+.pv-dot.active{ background:#fff; width:16px; border-radius:4px; }
+
 .product-cat-tag{
   align-self:flex-start;
   background: var(--cream-deep);
@@ -574,16 +605,32 @@ h1,h2,h3,h4{
 .gallery-item{
   border-radius: var(--radius-md);
   overflow:hidden;
-  cursor:pointer;
   box-shadow: var(--shadow);
-  position:relative;
-  aspect-ratio: 4/3;
+  background: var(--paper);
+  display:flex;
+  flex-direction:column;
+}
+.gallery-photo{
   border:none;
   padding:0;
   background:none;
+  cursor:pointer;
+  display:block;
+  width:100%;
+  aspect-ratio: 4/3;
+  overflow:hidden;
 }
-.gallery-item img{ width:100%; height:100%; object-fit:cover; transition: transform .4s ease; }
-.gallery-item:hover img{ transform: scale(1.06); }
+.gallery-photo img{ width:100%; height:100%; object-fit:cover; transition: transform .4s ease; display:block; }
+.gallery-photo:hover img{ transform: scale(1.06); }
+.gallery-caption-box{ padding: 0.9rem 1.1rem 1.05rem; }
+.gallery-title{
+  font-family: var(--font-body);
+  font-weight:700;
+  font-size:0.95rem;
+  color: var(--ink);
+  margin-bottom:0.15rem;
+}
+.gallery-desc{ font-size:0.82rem; color: var(--ink-soft); }
 
 .video-wrap{
   position:relative;
@@ -1265,12 +1312,17 @@ function waLink(admin, text){
    CATATAN UNTUK ADMIN: Ini adalah CONTOH produk, harga & deskripsi.
    Silakan ubah/sesuaikan array di bawah ini dengan produk sebenarnya.
 
-   CARA PAKAI FOTO ASLI (JPG/PNG):
+   CARA PAKAI FOTO ASLI (JPG/PNG) — bisa 1 sampai 3 foto per produk:
    1. Simpan file foto di folder "produk-foto/" (folder ini sudah dibuatkan).
-   2. Tambahkan field img: 'produk-foto/nama-file.jpg' pada produk terkait.
+   2. Isi field imgs: [...] dengan daftar path foto produk terkait, urutan
+      sesuai urutan tampil di slide. Contoh:
+        imgs: ['produk-foto/bayam-1.jpg','produk-foto/bayam-2.jpg','produk-foto/bayam-3.jpg']
+      Boleh isi 1 foto saja (tombol geser tidak akan muncul), atau 2-3 foto
+      (otomatis muncul tombol geser kiri/kanan beserta titik indikator).
    3. JANGAN ubah field "id" (mis. 'p1','p2') — itu kode internal sistem
       keranjang, bukan nama file foto.
-   4. Kalau field img dikosongkan/dihapus, produk otomatis memakai ikon emoji.
+   4. Kalau field imgs dikosongkan/dihapus ( imgs: [] ), produk otomatis
+      memakai ikon emoji.
    5. Foto sebaiknya rasio mendekati 4:3 (misal 800x600px), otomatis dipotong
       rapi (crop) mengisi kotak foto.
 
@@ -1279,20 +1331,20 @@ function waLink(admin, text){
    status: null | 'baru' | 'promo' | 'habis'
    promoPrice: isi jika status 'promo' (harga setelah diskon) */
 const PRODUCTS = [
-  { id:'p1', cat:'sayur', icon:'🥬', img:'produk-foto/bayam.jpg', name:'Bayam Merah Segar', unit:'ikat', price:5000, desc:['Dipetik pagi hari dari pekarangan warga','Segar dan bebas pestisida kimia'], status:'baru' },
-  { id:'p2', cat:'sayur', icon:'🥦', img:'produk-foto/kangkung.jpg', name:'Kangkung Segar', unit:'ikat', price:4000, desc:['Kangkung darat pilihan, renyah','Cocok untuk tumis sehari-hari'], status:null },
-  { id:'p3', cat:'sayur', icon:'🌶️', img:'produk-foto/cabai.jpg', name:'Cabai Rawit Segar', unit:'ons', price:8000, desc:['Cabai rawit hasil kebun sendiri','Tingkat kepedasan pas untuk sambal rumahan'], status:'promo', promoPrice:6500 },
-  { id:'p4', cat:'sayur', icon:'🍆', img:'produk-foto/terong.jpg', name:'Terong Ungu', unit:'kg', price:9000, desc:['Ukuran sedang, empuk saat diolah','Cocok jadi balado atau lalap'], status:null },
-  { id:'p5', cat:'sayur', icon:'🌿', img:'produk-foto/kelor.jpg', name:'Daun Kelor', unit:'bungkus', price:3000, desc:['Daun kelor pilihan, kaya nutrisi','Cocok untuk sayur bening'], status:null },
-  { id:'p6', cat:'sayur', icon:'🥒', img:'produk-foto/timun.jpg', name:'Timun Segar', unit:'kg', price:6000, desc:['Renyah untuk lalapan maupun acar','Dipanen langsung dari kebun'], status:'habis' },
-  { id:'p7', cat:'olahan', icon:'🍌', img:'produk-foto/keripik_pisang.jpg', name:'Keripik Pisang', unit:'bungkus 200g', price:12000, desc:['Digoreng renyah dengan minyak baru','Tanpa bahan pengawet'], status:'baru' },
-  { id:'p8', cat:'olahan', icon:'🍠', img:'produk-foto/keripik_singkong.jpg', name:'Keripik Singkong', unit:'bungkus 200g', price:11000, desc:['Singkong pilihan, diiris tipis','Digoreng garing merata'], status:null },
-  { id:'p9', cat:'olahan', icon:'🥜', img:'produk-foto/peyek_kacang.jpg', name:'Peyek Kacang', unit:'bungkus', price:15000, desc:['Kacang tanah pilihan, gurih','Cocok jadi teman nasi'], status:null },
-  { id:'p10', cat:'olahan', icon:'🫙', img:'produk-foto/beras_kencur.jpg', name:'Jamu Beras Kencur', unit:'botol 350ml', price:10000, desc:['Racikan tradisional segar','Dibuat langsung tanpa bahan pengawet'], status:'promo', promoPrice:8500 },
-  { id:'p11', cat:'olahan', icon:'🫙', img:'produk-foto/kunyit_asam.jpg', name:'Jamu Kunyit Asam', unit:'botol 350ml', price:10000, desc:['Menyegarkan, resep turun-temurun','Cocok diminum setiap hari'], status:null },
-  { id:'p12', cat:'olahan', icon:'🍯', img:'produk-foto/wedang_uwuh.jpg', name:'Wedang Uwuh Instan', unit:'bungkus', price:13000, desc:['Rempah pilihan khas Jawa','Nikmat diseduh hangat'], status:null },
-  { id:'p13', cat:'ikan', icon:'🧺', img:'produk-foto/lele.jpg', name:'Ikan Lele', unit:'kg', price:25000, desc:['Ikan lele','Hasil budidaya'], status:null },
-  { id:'p14', cat:'ternak', icon:'👜', img:'produk-foto/kambing.jpg', name:'Kambing Jawa', unit:'ekor', price:3500000, desc:['Diternak oleh anggota KWT','Daging tebal, kering'], status:'baru' },
+  { id:'p1', cat:'sayur', icon:'🥬', imgs:['produk-foto/bayam.jpg'], name:'Bayam Merah Segar', unit:'ikat', price:5000, desc:['Dipetik pagi hari dari pekarangan warga','Segar dan bebas pestisida kimia'], status:'baru' },
+  { id:'p2', cat:'sayur', icon:'🥦', imgs:['produk-foto/kangkung.jpg'], name:'Kangkung Segar', unit:'ikat', price:4000, desc:['Kangkung darat pilihan, renyah','Cocok untuk tumis sehari-hari'], status:null },
+  { id:'p3', cat:'sayur', icon:'🌶️', imgs:['produk-foto/cabai.jpg'], name:'Cabai Rawit Segar', unit:'ons', price:8000, desc:['Cabai rawit hasil kebun sendiri','Tingkat kepedasan pas untuk sambal rumahan'], status:'promo', promoPrice:6500 },
+  { id:'p4', cat:'sayur', icon:'🍆', imgs:['produk-foto/terong.jpg'], name:'Terong Ungu', unit:'kg', price:9000, desc:['Ukuran sedang, empuk saat diolah','Cocok jadi balado atau lalap'], status:null },
+  { id:'p5', cat:'sayur', icon:'🌿', imgs:['produk-foto/kelor.jpg'], name:'Daun Kelor', unit:'bungkus', price:3000, desc:['Daun kelor pilihan, kaya nutrisi','Cocok untuk sayur bening'], status:null },
+  { id:'p6', cat:'sayur', icon:'🥒', imgs:['produk-foto/timun.jpg'], name:'Timun Segar', unit:'kg', price:6000, desc:['Renyah untuk lalapan maupun acar','Dipanen langsung dari kebun'], status:'habis' },
+  { id:'p7', cat:'olahan', icon:'🍌', imgs:['produk-foto/keripik_pisang.jpg'], name:'Keripik Pisang', unit:'bungkus 200g', price:12000, desc:['Digoreng renyah dengan minyak baru','Tanpa bahan pengawet'], status:'baru' },
+  { id:'p8', cat:'olahan', icon:'🍠', imgs:['produk-foto/keripik_singkong.jpg'], name:'Keripik Singkong', unit:'bungkus 200g', price:11000, desc:['Singkong pilihan, diiris tipis','Digoreng garing merata'], status:null },
+  { id:'p9', cat:'olahan', icon:'🥜', imgs:['produk-foto/peyek_kacang.jpg'], name:'Peyek Kacang', unit:'bungkus', price:15000, desc:['Kacang tanah pilihan, gurih','Cocok jadi teman nasi'], status:null },
+  { id:'p10', cat:'olahan', icon:'🫙', imgs:['produk-foto/beras_kencur.jpg'], name:'Jamu Beras Kencur', unit:'botol 350ml', price:10000, desc:['Racikan tradisional segar','Dibuat langsung tanpa bahan pengawet'], status:'promo', promoPrice:8500 },
+  { id:'p11', cat:'olahan', icon:'🫙', imgs:['produk-foto/kunyit_asam.jpg'], name:'Jamu Kunyit Asam', unit:'botol 350ml', price:10000, desc:['Menyegarkan, resep turun-temurun','Cocok diminum setiap hari'], status:null },
+  { id:'p12', cat:'olahan', icon:'🍯', imgs:['produk-foto/wedang_uwuh.jpg'], name:'Wedang Uwuh Instan', unit:'bungkus', price:13000, desc:['Rempah pilihan khas Jawa','Nikmat diseduh hangat'], status:null },
+  { id:'p13', cat:'ikan', icon:'🧺', imgs:['produk-foto/lele.jpg'], name:'Ikan Lele', unit:'kg', price:25000, desc:['Ikan lele','Hasil budidaya'], status:null },
+  { id:'p14', cat:'ternak', icon:'👜', imgs:['produk-foto/kambing.jpg'], name:'Kambing Jawa', unit:'ekor', price:3500000, desc:['Diternak oleh anggota KWT','Daging tebal, kering'], status:'baru' },
 ];
 
 const CAT_LABEL = { sayur:'Sayur & Kebun', olahan:'Olahan Pangan', ikan:'Perikanan', ternak:'Peternakan', kerajinan:'Kerajinan' };
@@ -1307,12 +1359,24 @@ function renderProducts(filter){
   list.forEach(p => {
     const isHabis = p.status === 'habis';
     const isPromo = p.status === 'promo' && p.promoPrice;
+    const imgs = (p.imgs && p.imgs.length) ? p.imgs.slice(0,3) : (p.img ? [p.img] : []);
+    const n = imgs.length;
     const card = document.createElement('div');
     card.className = 'product-card reveal in' + (isHabis ? ' is-habis' : '');
+    card.dataset.pid = p.id;
     card.innerHTML = `
       <div class="product-visual ${CAT_CLASS[p.cat]}">
         ${p.status ? `<div class="status-badges"><span class="status-badge ${p.status}">${STATUS_LABEL[p.status]}</span></div>` : ''}
-        ${p.img ? `<img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${p.icon}'}))">` : `<span>${p.icon}</span>`}
+        ${n ? `
+          <div class="pv-track" style="width:${n*100}%">
+            ${imgs.map(src => `<div class="pv-slide" style="width:${100/n}%"><img src="${src}" alt="${p.name}" loading="lazy" onerror="this.parentElement.remove()"></div>`).join('')}
+          </div>
+          ${n > 1 ? `
+            <button class="pv-nav pv-prev" data-pv="${p.id}" data-dir="-1" aria-label="Foto sebelumnya">‹</button>
+            <button class="pv-nav pv-next" data-pv="${p.id}" data-dir="1" aria-label="Foto berikutnya">›</button>
+            <div class="pv-dots">${imgs.map((_,i) => `<button class="pv-dot${i===0?' active':''}" data-pv="${p.id}" data-i="${i}" aria-label="Foto ke-${i+1}"></button>`).join('')}</div>
+          ` : ''}
+        ` : `<span>${p.icon}</span>`}
       </div>
       <div class="product-body">
         <span class="product-cat-tag">${CAT_LABEL[p.cat]}</span>
@@ -1332,6 +1396,21 @@ function renderProducts(filter){
   });
 }
 renderProducts('semua');
+
+/* ================= Slide Foto Produk (geser kiri/kanan) ================= */
+const pvIndex = {}; // menyimpan indeks foto aktif per id produk
+function pvGoTo(id, target){
+  const card = document.querySelector(`.product-card[data-pid="${id}"]`);
+  if(!card) return;
+  const track = card.querySelector('.pv-track');
+  const dots = card.querySelectorAll('.pv-dot');
+  const n = dots.length;
+  if(!track || n === 0) return;
+  const idx = ((target % n) + n) % n; // biar bisa berputar (loop)
+  pvIndex[id] = idx;
+  track.style.transform = `translateX(-${idx * (100/n)}%)`;
+  dots.forEach((d,di) => d.classList.toggle('active', di === idx));
+}
 
 document.getElementById('categoryTabs').addEventListener('click', e => {
   const btn = e.target.closest('.tab-btn');
@@ -1425,6 +1504,17 @@ document.body.addEventListener('click', e => {
     const id = qtyBtn.dataset.id;
     if(qtyBtn.dataset.action === 'plus') changeQty(id, 1);
     else changeQty(id, -1);
+    return;
+  }
+  const pvNav = e.target.closest('.pv-nav');
+  if(pvNav){
+    const id = pvNav.dataset.pv;
+    pvGoTo(id, (pvIndex[id] || 0) + parseInt(pvNav.dataset.dir, 10));
+    return;
+  }
+  const pvDot = e.target.closest('.pv-dot');
+  if(pvDot){
+    pvGoTo(pvDot.dataset.pv, parseInt(pvDot.dataset.i, 10));
   }
 });
 
@@ -1449,22 +1539,31 @@ function showToast(text){
   toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
 }
 
-/* ================= Galeri & Lightbox ================= */
+/* ================= Galeri & Lightbox =================
+   CATATAN UNTUK ADMIN: title = judul singkat foto (selalu tampil di bawah foto).
+   desc = keterangan tambahan (opsional, boleh dihapus/dikosongkan). */
 const GALLERY_ITEMS = [
-  { src:'kegiatan-foto/kebun_bayam.jpg', caption:'Kegiatan Kelompok Tani' },
-  { src:'kegiatan-foto/kebun_kubis.jpg', caption:'Kegiatan Kelompok Tani' },
-  { src:'kegiatan-foto/kebun_bawang_merah.jpg', caption:'Kegiatan Kelompok Tani' },
-  { src:'kegiatan-foto/dieng1.jpeg', caption:'Tour Dieng' },
-  { src:'kegiatan-foto/dieng2.jpeg', caption:'Tour Dieng' },
-  { src:'kegiatan-foto/dieng3.jpeg', caption:'Tour Dieng' },
+  { src:'kegiatan-foto/kebun_bayam.jpg', title:'Kebun Bayam', desc:'Kegiatan Kelompok Tani' },
+  { src:'kegiatan-foto/kebun_kubis.jpg', title:'Kebun Kubis', desc:'Kegiatan Kelompok Tani' },
+  { src:'kegiatan-foto/kebun_bawang_merah.jpg', title:'Kebun Bawang Merah', desc:'Kegiatan Kelompok Tani' },
+  { src:'kegiatan-foto/dieng1.jpeg', title:'Tour Dieng', desc:'Kunjungan Wisata Anggota KWT' },
+  { src:'kegiatan-foto/dieng2.jpeg', title:'Tour Dieng', desc:'Kunjungan Wisata Anggota KWT' },
+  { src:'kegiatan-foto/dieng3.jpeg', title:'Tour Dieng', desc:'Kunjungan Wisata Anggota KWT' },
 ];
 const galleryGrid = document.getElementById('galleryGrid');
 GALLERY_ITEMS.forEach((item, i) => {
-  const btn = document.createElement('button');
-  btn.className = 'gallery-item reveal in';
-  btn.innerHTML = `<img src="${item.src}" alt="${item.caption}" loading="lazy">`;
-  btn.addEventListener('click', () => openLightbox(i));
-  galleryGrid.appendChild(btn);
+  const wrap = document.createElement('div');
+  wrap.className = 'gallery-item reveal in';
+  wrap.innerHTML = `
+    <button class="gallery-photo" aria-label="Lihat foto ${item.title}">
+      <img src="${item.src}" alt="${item.title}" loading="lazy">
+    </button>
+    <div class="gallery-caption-box">
+      <h4 class="gallery-title">${item.title}</h4>
+      ${item.desc ? `<p class="gallery-desc">${item.desc}</p>` : ''}
+    </div>`;
+  wrap.querySelector('.gallery-photo').addEventListener('click', () => openLightbox(i));
+  galleryGrid.appendChild(wrap);
 });
 
 const lightbox = document.getElementById('lightbox');
@@ -1473,8 +1572,8 @@ const lightboxCaption = document.getElementById('lightboxCaption');
 function openLightbox(i){
   const item = GALLERY_ITEMS[i];
   lightboxImg.src = item.src;
-  lightboxImg.alt = item.caption;
-  lightboxCaption.textContent = item.caption;
+  lightboxImg.alt = item.title;
+  lightboxCaption.textContent = item.desc ? `${item.title} — ${item.desc}` : item.title;
   lightbox.classList.add('open');
 }
 document.getElementById('lightboxClose').addEventListener('click', () => lightbox.classList.remove('open'));
