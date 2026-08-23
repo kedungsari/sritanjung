@@ -954,16 +954,55 @@ h1,h2,h3,h4{
   bottom: 100px; right:24px;
   background: var(--green-deep);
   color:#fff;
-  padding: 12px 20px;
+  padding: 13px 22px;
   border-radius: 100px;
   font-size:0.88rem;
   font-weight:600;
-  opacity:0; transform: translateY(10px);
-  transition: all .3s ease;
-  z-index: 950;
+  display:flex; align-items:center; gap:9px;
+  box-shadow: 0 14px 30px -10px rgba(32,43,28,0.45);
+  opacity:0; transform: translateY(10px) scale(0.97);
+  transition: opacity .3s ease, transform .3s ease;
+  z-index: 1600;
   pointer-events:none;
+  max-width: calc(100vw - 48px);
 }
-.toast.show{ opacity:1; transform: translateY(0); }
+.toast.show{ opacity:1; transform: translateY(0) scale(1); }
+
+/* ============ Confirm Modal ============ */
+.confirm-overlay{
+  position:fixed; inset:0;
+  background: rgba(20,28,15,0.55);
+  backdrop-filter: blur(3px);
+  z-index: 1700;
+  opacity:0; pointer-events:none;
+  transition: opacity .25s ease;
+}
+.confirm-overlay.open{ opacity:1; pointer-events:auto; }
+.confirm-modal{
+  position:fixed; top:50%; left:50%;
+  transform: translate(-50%,-50%) scale(0.94);
+  background: var(--paper);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 30px 60px -20px rgba(20,28,15,0.45);
+  padding: 2rem 1.8rem 1.7rem;
+  width: min(360px, calc(100vw - 48px));
+  text-align:center;
+  z-index: 1701;
+  opacity:0; pointer-events:none;
+  transition: opacity .25s ease, transform .25s ease;
+}
+.confirm-modal.open{ opacity:1; pointer-events:auto; transform: translate(-50%,-50%) scale(1); }
+.confirm-icon{
+  width:56px; height:56px; margin:0 auto 1rem;
+  border-radius:50%;
+  background: var(--cream-deep);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.6rem;
+}
+.confirm-modal h4{ font-size:1.25rem; margin-bottom:0.5rem; }
+.confirm-modal p{ color: var(--ink-soft); font-size:0.92rem; margin-bottom:1.5rem; line-height:1.55; }
+.confirm-actions{ display:flex; gap:0.7rem; }
+.confirm-actions .btn{ flex:1; justify-content:center; }
 
 /* ============ Responsive ============ */
 @media (max-width: 960px){
@@ -1278,6 +1317,18 @@ h1,h2,h3,h4{
 
 <div class="toast" id="toast"></div>
 
+<!-- ============ Confirm Modal (pengganti dialog bawaan browser) ============ -->
+<div class="confirm-overlay" id="confirmOverlay"></div>
+<div class="confirm-modal" id="confirmModal" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="confirm-icon" id="confirmIcon">🗑️</div>
+  <h4 id="confirmTitle">Kosongkan Keranjang?</h4>
+  <p id="confirmMessage">Semua produk yang sudah ditambahkan akan dihapus.</p>
+  <div class="confirm-actions">
+    <button type="button" class="btn btn-outline btn-sm" id="confirmCancelBtn">Batal</button>
+    <button type="button" class="btn btn-primary btn-sm" id="confirmOkBtn">Ya, Kosongkan</button>
+  </div>
+</div>
+
 <!-- ============ Lightbox Galeri ============ -->
 <div class="lightbox" id="lightbox">
   <button class="lightbox-close" id="lightboxClose" aria-label="Tutup galeri">×</button>
@@ -1456,11 +1507,18 @@ function removeItem(id){
 
 function clearCart(){
   if(Object.keys(cart).length === 0) return;
-  if(confirm('Kosongkan semua produk dari keranjang?')){
+  showConfirm({
+    icon: '🗑️',
+    title: 'Kosongkan Keranjang?',
+    message: 'Semua produk yang sudah ditambahkan akan dihapus dari keranjang belanja Anda. Tindakan ini tidak bisa dibatalkan.',
+    confirmText: 'Ya, Kosongkan',
+    cancelText: 'Batal'
+  }).then(ok => {
+    if(!ok) return;
     cart = {};
     saveCart();
-    showToast('Keranjang dikosongkan 🗑️');
-  }
+    showToast('Keranjang berhasil dikosongkan 🗑️');
+  });
 }
 
 function updateCartUI(){
@@ -1559,6 +1617,43 @@ function showToast(text){
   toast.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+/* ================= Confirm Modal (pengganti confirm() bawaan browser) =================
+   Dipakai untuk semua konfirmasi aksi penting (mis. kosongkan keranjang).
+   Cara pakai: showConfirm({ title, message, ... }).then(ok => { if(ok) { ... } }) */
+const confirmOverlay = document.getElementById('confirmOverlay');
+const confirmModal = document.getElementById('confirmModal');
+function showConfirm({ icon = '⚠️', title = 'Konfirmasi', message = '', confirmText = 'Ya', cancelText = 'Batal' } = {}){
+  return new Promise(resolve => {
+    document.getElementById('confirmIcon').textContent = icon;
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+    const okBtn = document.getElementById('confirmOkBtn');
+    const cancelBtn = document.getElementById('confirmCancelBtn');
+    okBtn.textContent = confirmText;
+    cancelBtn.textContent = cancelText;
+
+    function close(result){
+      confirmOverlay.classList.remove('open');
+      confirmModal.classList.remove('open');
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      confirmOverlay.removeEventListener('click', onCancel);
+      document.removeEventListener('keydown', onEsc);
+      resolve(result);
+    }
+    function onOk(){ close(true); }
+    function onCancel(){ close(false); }
+    function onEsc(ev){ if(ev.key === 'Escape') onCancel(); }
+
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    confirmOverlay.addEventListener('click', onCancel);
+    document.addEventListener('keydown', onEsc);
+    confirmOverlay.classList.add('open');
+    confirmModal.classList.add('open');
+  });
 }
 
 /* ================= Galeri & Lightbox =================
