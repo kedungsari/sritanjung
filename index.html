@@ -943,6 +943,10 @@ h1,h2,h3,h4{
 .cart-total{ display:flex; justify-content:space-between; font-weight:700; margin-bottom:1rem; font-size:1.05rem; }
 .cart-footer .btn{ width:100%; justify-content:center; }
 .cart-footer p.hint{ font-size:0.78rem; color: var(--ink-soft); margin-top:0.7rem; text-align:center; }
+.checkout-buttons{ display:flex; flex-direction:column; gap:0.8rem; }
+.checkout-group{ display:flex; flex-direction:column; gap:0.4rem; }
+.checkout-group-label{ font-size:0.78rem; color: var(--ink-soft); display:flex; justify-content:space-between; padding:0 2px; }
+.checkout-group-label strong{ color: var(--ink); }
 
 /* ============ Scroll reveal ============ */
 .reveal{ opacity:0; transform: translateY(24px); transition: all .7s ease; }
@@ -1309,7 +1313,7 @@ h1,h2,h3,h4{
   <div class="cart-items" id="cartItems"></div>
   <div class="cart-footer">
     <div class="cart-total"><span>Estimasi Total</span><span id="cartTotal">Rp 0</span></div>
-    <a href="#" target="_blank" rel="noopener" class="btn btn-wa" id="checkoutBtn">💬 Checkout via WhatsApp</a>
+    <div class="checkout-buttons" id="checkoutButtons"><!-- diisi oleh JavaScript --></div>
     <button type="button" class="btn btn-outline btn-sm" id="clearCartBtn" style="width:100%;justify-content:center;margin-top:0.7rem;">🗑️ Kosongkan Keranjang</button>
     <p class="hint">Harga estimasi. Total final dikonfirmasi admin via WhatsApp.</p>
   </div>
@@ -1366,6 +1370,18 @@ function getDefaultAdmin(){
 function waLink(admin, text){
   return `https://wa.me/${admin.wa}?text=${encodeURIComponent(text)}`;
 }
+/* Menentukan tujuan WA untuk 1 produk:
+   - Kalau produk punya field "wa" sendiri, pakai itu (cari juga namanya di
+     daftar ADMINS kalau nomornya sama, supaya nama kontak tetap muncul rapi).
+   - Kalau tidak ada, pakai admin default seperti biasa (perilaku lama). */
+function resolveWaTarget(p){
+  if(p.wa){
+    const known = ADMINS.find(a => a.wa === p.wa);
+    if(known) return known;
+    return { id:'custom-'+p.wa, name: p.waName || 'Kontak Produk Ini', wa: p.wa, online:true };
+  }
+  return getDefaultAdmin();
+}
 
 /* ================= Data Produk =================
    CATATAN UNTUK ADMIN: Ini adalah CONTOH produk, harga & deskripsi.
@@ -1388,9 +1404,20 @@ function waLink(admin, text){
    unit  : satuan singkat, tampil digabung dengan harga -> "Rp 5.000/ikat"
    desc  : array berisi beberapa poin singkat, tampil sebagai list (bukan paragraf)
    status: null | 'baru' | 'promo' | 'habis'
-   promoPrice: isi jika status 'promo' (harga setelah diskon) */
+   promoPrice: isi jika status 'promo' (harga setelah diskon)
+
+   NOMOR WA KHUSUS PER PRODUK (opsional):
+   Secara default, tombol chat 💬 di tiap produk dan checkout keranjang akan
+   mengirim pesan ke Admin utama (lihat ADMINS di bawah). Kalau produk
+   tertentu dijual/dikelola orang lain dengan nomor WA sendiri (misal hasil
+   ternak/ikan dari anggota lain), tambahkan field berikut pada produk itu:
+     wa     : '62812xxxxxxxx'   -> nomor WA tujuan (format 62xxx, tanpa tanda + )
+     waName : 'Pak Slamet'      -> nama kontak (opsional, biar rapi di layar keranjang)
+   Kalau field wa dikosongkan/dihapus, produk otomatis kembali memakai Admin
+   utama seperti biasa. Kalau isi keranjang berasal dari nomor WA berbeda-beda,
+   tombol checkout otomatis dipecah per nomor tujuan (lihat bagian Cart Logic). */
 const PRODUCTS = [
-  { id:'p1', cat:'sayur', icon:'🥬', imgs:['produk-foto/bayam.jpg', 'produk-foto/bayam2.jpg', 'produk-foto/bayam3.jpg'], name:'Bayam Merah Segar', unit:'ikat', price:5000, desc:['Dipetik pagi hari dari pekarangan warga','Segar dan bebas pestisida kimia'], status:'baru' },
+  { id:'p1', cat:'sayur', icon:'🥬', imgs:['produk-foto/bayam.jpg', 'produk-foto/bayam2.jpg', 'produk-foto/bayam3.jpg'], name:'Bayam Merah Segar', unit:'ikat', price:5000, desc:['Dipetik pagi hari dari pekarangan warga','Segar dan bebas pestisida kimia'], status:'baru', wa:'08129683690', waName:'Eko' },
   { id:'p2', cat:'sayur', icon:'🥦', imgs:['produk-foto/kangkung.jpg'], name:'Kangkung Segar', unit:'ikat', price:4000, desc:['Kangkung darat pilihan, renyah','Cocok untuk tumis sehari-hari'], status:null },
   { id:'p3', cat:'sayur', icon:'🌶️', imgs:['produk-foto/cabai.jpg'], name:'Cabai Rawit Segar', unit:'ons', price:8000, desc:['Cabai rawit hasil kebun sendiri','Tingkat kepedasan pas untuk sambal rumahan'], status:'promo', promoPrice:6500 },
   { id:'p4', cat:'sayur', icon:'🍆', imgs:['produk-foto/terong.jpg'], name:'Terong Ungu', unit:'kg', price:9000, desc:['Ukuran sedang, empuk saat diolah','Cocok jadi balado atau lalap'], status:null },
@@ -1448,7 +1475,7 @@ function renderProducts(filter){
           ${isHabis
             ? `<button class="qty-add" disabled>Stok Habis</button>`
             : `<button class="qty-add" data-id="${p.id}">+ Keranjang</button>`}
-          <a class="wa-quick" target="_blank" rel="noopener" href="${waLink(getDefaultAdmin(), 'Halo KWT Sri Tanjung, saya ingin menanyakan ' + p.name + ' (' + p.unit + '). Apakah stok tersedia?')}" aria-label="Tanya produk via WhatsApp">💬</a>
+          <a class="wa-quick" target="_blank" rel="noopener" href="${waLink(resolveWaTarget(p), 'Halo, saya ingin menanyakan ' + p.name + ' (' + p.unit + '). Apakah stok tersedia?')}" aria-label="Tanya produk via WhatsApp">💬</a>
         </div>
       </div>`;
     grid.appendChild(card);
@@ -1526,13 +1553,12 @@ function updateCartUI(){
   const badge = document.getElementById('cartBadge');
   const totalEl = document.getElementById('cartTotal');
   const clearBtn = document.getElementById('clearCartBtn');
-  const checkoutBtn = document.getElementById('checkoutBtn');
+  const checkoutButtonsEl = document.getElementById('checkoutButtons');
   const ids = Object.keys(cart);
   const count = ids.reduce((sum,id) => sum + cart[id], 0);
   badge.textContent = count;
   badge.style.display = count > 0 ? 'flex' : 'none';
   clearBtn.style.display = ids.length > 0 ? 'inline-flex' : 'none';
-  checkoutBtn.style.display = ids.length > 0 ? 'inline-flex' : 'none';
 
   if(ids.length === 0){
     itemsEl.innerHTML = `<div class="cart-empty"><div class="emoji">🛒</div><p>Keranjang masih kosong.<br>Yuk pilih produk KWT Sri Tanjung!</p></div>`;
@@ -1565,14 +1591,37 @@ function updateCartUI(){
   });
   totalEl.textContent = 'Rp ' + total.toLocaleString('id-ID');
 
-  // Build WhatsApp checkout message
-  let msg = 'Halo KWT Sri Tanjung, saya ingin memesan:\n';
-  ids.forEach((id,i) => {
+  /* ---- Kelompokkan isi keranjang per nomor WA tujuan ----
+     Kalau semua produk pakai Admin yang sama (kasus umum), hasilnya cuma
+     1 grup -> tampil 1 tombol checkout seperti biasa. Kalau ada produk
+     dengan nomor WA sendiri, otomatis terpecah jadi beberapa tombol supaya
+     pesan terkirim ke orang yang tepat. */
+  const groups = {}; // key: nomor wa -> { admin, items:[], subtotal }
+  ids.forEach(id => {
     const p = PRODUCTS.find(x => x.id === id);
-    if(p) msg += `${i+1}. ${p.name} x${cart[id]} (Rp ${(p.price*cart[id]).toLocaleString('id-ID')})\n`;
+    if(!p) return;
+    const admin = resolveWaTarget(p);
+    if(!groups[admin.wa]) groups[admin.wa] = { admin, items: [], subtotal: 0 };
+    groups[admin.wa].items.push({ p, qty: cart[id] });
+    groups[admin.wa].subtotal += p.price * cart[id];
   });
-  msg += `\nEstimasi total: Rp ${total.toLocaleString('id-ID')}\n\nNama: \nAlamat: \n\nMohon konfirmasi ketersediaan, harga, dan ongkos kirim. Terima kasih 🙏`;
-  document.getElementById('checkoutBtn').href = waLink(getDefaultAdmin(), msg);
+  const groupList = Object.values(groups);
+
+  checkoutButtonsEl.innerHTML = '';
+  groupList.forEach((g, gi) => {
+    let msg = 'Halo KWT Sri Tanjung, saya ingin memesan:\n';
+    g.items.forEach((it, i) => {
+      msg += `${i+1}. ${it.p.name} x${it.qty} (Rp ${(it.p.price*it.qty).toLocaleString('id-ID')})\n`;
+    });
+    msg += `\nEstimasi total: Rp ${g.subtotal.toLocaleString('id-ID')}\n\nNama: \nAlamat: \n\nMohon konfirmasi ketersediaan, harga, dan ongkos kirim. Terima kasih 🙏`;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'checkout-group';
+    wrap.innerHTML = `
+      ${groupList.length > 1 ? `<div class="checkout-group-label"><span>Kirim ke ${g.admin.name}</span><strong>Rp ${g.subtotal.toLocaleString('id-ID')}</strong></div>` : ''}
+      <a href="${waLink(g.admin, msg)}" target="_blank" rel="noopener" class="btn btn-wa">💬 Checkout${groupList.length > 1 ? ` ke ${g.admin.name}` : ' via WhatsApp'}</a>`;
+    checkoutButtonsEl.appendChild(wrap);
+  });
 }
 
 document.body.addEventListener('click', e => {
