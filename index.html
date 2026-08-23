@@ -242,6 +242,7 @@ h1,h2,h3,h4{
 .nav-menu a:hover::after{ width:100%; }
 
 .nav-actions{ display:flex; align-items:center; gap:14px; }
+.only-mobile{ display:none; }
 
 .cart-btn{
   position: relative;
@@ -936,7 +937,16 @@ h1,h2,h3,h4{
   }
   .nav-menu.open{ transform: translateY(0); }
   .menu-toggle{ display:block; }
-  .brand-text{ display:none; }
+  .only-mobile{ display:block; }
+  .brand-text{ display:inline-block; max-width: 150px; }
+  .brand-text p{ display:none; }
+  .brand-text strong{
+    font-size:1rem;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .brand img{ height:40px; }
 }
 @media (max-width: 640px){
   .hero{ padding-top:140px; }
@@ -1544,11 +1554,10 @@ document.getElementById('navWaBtnMobile').addEventListener('click', openAdminPic
    Tambah/kurangi slide dengan menambah/menghapus baris di array ini. */
 const HERO_SLIDES = [
   {
-    img: 'gallery/gallery-2.png',
+    img: 'logo.png',
     badge: null, badgeType: null,
-    title: 'Dari Pekarangan Ngramang',
+    title: 'Selamat Datang',
     subtitle: 'Sayur segar dipetik langsung untuk meja keluarga Anda.',
-    cta: '🛒 Lihat Produk', link: '#produk'
   },
   {
     img: 'produk-foto/cabai.jpg',
@@ -1558,7 +1567,7 @@ const HERO_SLIDES = [
     cta: 'Lihat Promo', link: '#produk'
   },
   {
-    img: 'gallery/gallery-4.png',
+    img: 'produk-foto/tomat.jpg',
     badge: '🆕 Produk Baru', badgeType: 'baru',
     title: 'Kerajinan Tangan Terbaru',
     subtitle: 'Anyaman & rajutan buatan tangan ibu-ibu KWT.',
