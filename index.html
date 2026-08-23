@@ -503,6 +503,9 @@ h1,h2,h3,h4{
 .product-visual.sayur{ background: linear-gradient(135deg, #DDEAC2, #B9D590); }
 .product-visual.olahan{ background: linear-gradient(135deg, #F3D488, #E3A93C); }
 .product-visual.kerajinan{ background: linear-gradient(135deg, #E4D3B8, #C7A876); }
+.product-visual.perikanan{ background: linear-gradient(135deg, #BEE3E0, #7FB8B3); }
+.product-visual.peternakan{ background: linear-gradient(135deg, #E9D8C4, #C8A47E); }
+.product-visual.lain{ background: linear-gradient(135deg, #E3D6EF, #B79ECF); }
 .product-visual img{
   width:100%; height:100%;
   object-fit: cover;
@@ -511,8 +514,10 @@ h1,h2,h3,h4{
 
 /* Slide foto produk (1-3 foto per produk) */
 .pv-track{
-  display:flex;
+  position:absolute;
+  top:0; left:0;
   height:100%;
+  display:flex;
   flex-shrink:0;
   transition: transform .35s ease;
 }
@@ -1109,12 +1114,13 @@ h1,h2,h3,h4{
     </div>
 
     <div class="category-tabs" id="categoryTabs">
-      <button class="tab-btn active" data-cat="semua">Semua Produk</button>
-      <button class="tab-btn" data-cat="sayur">Sayur & Hasil Kebun</button>
-      <button class="tab-btn" data-cat="olahan">Olahan Pangan</button>
-      <button class="tab-btn" data-cat="ikan">Perikanan</button>
-      <button class="tab-btn" data-cat="ternak">Peternakan</button>
-      <button class="tab-btn" data-cat="kerajinan">Kerajinan Tangan</button>
+      <button class="tab-btn active" data-cat="semua">🧺 Semua Produk</button>
+      <button class="tab-btn" data-cat="sayur">🥬 Sayur & Hasil Kebun</button>
+      <button class="tab-btn" data-cat="olahan">🍪 Olahan Pangan</button>
+      <button class="tab-btn" data-cat="ikan">🐟 Perikanan</button>
+      <button class="tab-btn" data-cat="ternak">🐐 Peternakan</button>
+      <button class="tab-btn" data-cat="kerajinan">🧵 Kerajinan Tangan</button>
+      <button class="tab-btn" data-cat="lain">🎁 Lain-lain</button>
     </div>
 
     <div class="products-grid" id="productsGrid"><!-- diisi oleh JavaScript --></div>
@@ -1344,12 +1350,12 @@ const PRODUCTS = [
   { id:'p10', cat:'olahan', icon:'🫙', imgs:['produk-foto/beras_kencur.jpg'], name:'Jamu Beras Kencur', unit:'botol 350ml', price:10000, desc:['Racikan tradisional segar','Dibuat langsung tanpa bahan pengawet'], status:'promo', promoPrice:8500 },
   { id:'p11', cat:'olahan', icon:'🫙', imgs:['produk-foto/kunyit_asam.jpg'], name:'Jamu Kunyit Asam', unit:'botol 350ml', price:10000, desc:['Menyegarkan, resep turun-temurun','Cocok diminum setiap hari'], status:null },
   { id:'p12', cat:'olahan', icon:'🍯', imgs:['produk-foto/wedang_uwuh.jpg'], name:'Wedang Uwuh Instan', unit:'bungkus', price:13000, desc:['Rempah pilihan khas Jawa','Nikmat diseduh hangat'], status:null },
-  { id:'p13', cat:'ikan', icon:'🧺', imgs:['produk-foto/lele.jpg'], name:'Ikan Lele', unit:'kg', price:25000, desc:['Ikan lele','Hasil budidaya'], status:null },
-  { id:'p14', cat:'ternak', icon:'👜', imgs:['produk-foto/kambing.jpg', 'produk-foto/kambing2.jpg', 'produk-foto/kambing3.jpg'], name:'Kambing Jawa', unit:'ekor', price:3500000, desc:['Diternak oleh anggota KWT','Daging tebal, kering'], status:'baru' },
+  { id:'p13', cat:'ikan', icon:'🐟', imgs:['produk-foto/lele.jpg'], name:'Ikan Lele', unit:'kg', price:25000, desc:['Ikan lele','Hasil budidaya'], status:null },
+  { id:'p14', cat:'ternak', icon:'🐐', imgs:['produk-foto/kambing.jpg', 'produk-foto/kambing2.jpg', 'produk-foto/kambing3.jpg'], name:'Kambing Jawa', unit:'ekor', price:3500000, desc:['Diternak oleh anggota KWT','Daging tebal, kering'], status:'baru' },
 ];
 
-const CAT_LABEL = { sayur:'Sayur & Kebun', olahan:'Olahan Pangan', ikan:'Perikanan', ternak:'Peternakan', kerajinan:'Kerajinan' };
-const CAT_CLASS = { sayur:'sayur', olahan:'olahan', ikan:'perikanan', ternak:'peternakan', kerajinan:'kerajinan' };
+const CAT_LABEL = { sayur:'Sayur & Kebun', olahan:'Olahan Pangan', ikan:'Perikanan', ternak:'Peternakan', kerajinan:'Kerajinan', lain:'Lain-lain' };
+const CAT_CLASS = { sayur:'sayur', olahan:'olahan', ikan:'perikanan', ternak:'peternakan', kerajinan:'kerajinan', lain:'lain' };
 const STATUS_LABEL = { baru:'Baru', promo:'Promo', habis:'Stok Habis' };
 
 /* ================= Render Produk ================= */
