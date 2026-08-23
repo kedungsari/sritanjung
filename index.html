@@ -61,7 +61,13 @@
     "addressLocality": "Kedungsari, Pengasih",
     "addressRegion": "Kulon Progo, Daerah Istimewa Yogyakarta",
     "addressCountry": "ID"
-  }
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": -7.867666839933083,
+    "longitude": 110.18286990998367
+  },
+  "hasMap": "https://www.google.com/maps/search/?api=1&query=-7.867666839933083,110.18286990998367"
 }
 </script>
 
@@ -208,7 +214,7 @@ h1,h2,h3,h4{
   padding: 14px 0;
 }
 .brand{ display:flex; align-items:center; gap:12px; text-decoration:none; }
-.brand img{ height: 46px; width:auto; }
+.brand img{ height: 50px; width:auto; }
 .brand-text p{ font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color: var(--ink-soft); font-weight:600; }
 .brand-text strong{ display:block; font-family: var(--font-display); color: var(--green-deep); font-size:1.15rem; }
 
@@ -792,7 +798,7 @@ h1,h2,h3,h4{
   margin-bottom: 1.6rem;
 }
 .footer-brand{ display:flex; gap:12px; align-items:center; max-width:340px; }
-.footer-brand img{ height:40px; filter: brightness(0) invert(1) opacity(0.9); }
+.footer-brand img{ height:46px; }
 .footer-brand strong{ color:#fff; font-family: var(--font-display); font-size:1.1rem; display:block; }
 .footer-brand p{ font-size:0.85rem; margin-top:2px; }
 .footer-links{ display:flex; gap:3rem; flex-wrap:wrap; }
@@ -951,7 +957,7 @@ h1,h2,h3,h4{
 <header class="site-header" id="siteHeader">
   <div class="container nav-primary">
     <a href="#beranda" class="brand">
-      <img src="logo.png" alt="Logo KWT Sri Tanjung">
+      <img src="logo-icon.png" alt="Logo KWT Sri Tanjung">
       <span class="brand-text"><strong>KWT Sri Tanjung</strong><p>Ngramang, Kedungsari</p></span>
     </a>
     <ul class="nav-menu" id="navMenu">
@@ -1139,7 +1145,7 @@ h1,h2,h3,h4{
         <p>Padukuhan Ngramang, Kalurahan Kedungsari</p>
         <p>Kapanewon Pengasih, Kabupaten Kulon Progo</p>
         <p>Daerah Istimewa Yogyakarta</p>
-        <a href="https://www.google.com/maps/search/?api=1&query=Ngramang%2C%20Kedungsari%2C%20Pengasih%2C%20Kulon%20Progo" target="_blank" rel="noopener" class="btn btn-outline btn-sm">🗺️ Buka di Google Maps</a>
+        <a href="https://www.google.com/maps/search/?api=1&query=-7.867666839933083,110.18286990998367" target="_blank" rel="noopener" class="btn btn-outline btn-sm">🗺️ Buka di Google Maps</a>
       </div>
       <div class="contact-card reveal">
         <h3>💬 Jam Layanan WhatsApp</h3>
@@ -1162,7 +1168,7 @@ h1,h2,h3,h4{
   <div class="container">
     <div class="footer-top">
       <div class="footer-brand">
-        <img src="logo.png" alt="Logo KWT Sri Tanjung">
+        <img src="logo-icon.png" alt="Logo KWT Sri Tanjung">
         <span><strong>KWT Sri Tanjung</strong><p>Padukuhan Ngramang, Kalurahan Kedungsari, Kapanewon Pengasih, Kulon Progo</p></span>
       </div>
       <div class="footer-links">
@@ -1179,7 +1185,7 @@ h1,h2,h3,h4{
           <h4>Kontak</h4>
           <ul>
             <li><a href="#" id="footerWaBtn" target="_blank" rel="noopener">WhatsApp Admin Kami</a></li>
-            <li><a href="https://www.google.com/maps/search/?api=1&query=Ngramang%2C%20Kedungsari%2C%20Pengasih%2C%20Kulon%20Progo" target="_blank" rel="noopener">Lihat Lokasi</a></li>
+            <li><a href="https://www.google.com/maps/search/?api=1&query=-7.867666839933083,110.18286990998367" target="_blank" rel="noopener">Lihat Lokasi</a></li>
           </ul>
         </div>
       </div>
@@ -1265,10 +1271,10 @@ function waLink(admin, text){
    status: null | 'baru' | 'promo' | 'habis'
    promoPrice: isi jika status 'promo' (harga setelah diskon) */
 const PRODUCTS = [
-  { id:'p1', cat:'sayur', icon:'🥬', img:'produk-foto/cabai.jpg', name:'Bayam Merah Segar', unit:'ikat', price:5000, desc:['Dipetik pagi hari dari pekarangan warga','Segar dan bebas pestisida kimia'], status:'baru' },
-  { id:'p2', cat:'sayur', icon:'🥦', img:'produk-foto/tomat.jpg', name:'Kangkung Segar', unit:'ikat', price:4000, desc:['Kangkung darat pilihan, renyah','Cocok untuk tumis sehari-hari'], status:null },
-  { id:'p3', cat:'sayur', icon:'🌶️', img:'produk-foto/lele.jpg', name:'Cabai Rawit Segar', unit:'ons', price:8000, desc:['Cabai rawit hasil kebun sendiri','Tingkat kepedasan pas untuk sambal rumahan'], status:'promo', promoPrice:6500 },
-  { id:'p4', cat:'sayur', icon:'🍆', img:'produk-foto/kambing.jpg', name:'Terong Ungu', unit:'kg', price:9000, desc:['Ukuran sedang, empuk saat diolah','Cocok jadi balado atau lalap'], status:null },
+  { id:'p1', cat:'sayur', icon:'🥬', name:'Bayam Merah Segar', unit:'ikat', price:5000, desc:['Dipetik pagi hari dari pekarangan warga','Segar dan bebas pestisida kimia'], status:'baru' },
+  { id:'p2', cat:'sayur', icon:'🥦', name:'Kangkung Segar', unit:'ikat', price:4000, desc:['Kangkung darat pilihan, renyah','Cocok untuk tumis sehari-hari'], status:null },
+  { id:'p3', cat:'sayur', icon:'🌶️', img:'produk-foto/cabai.jpg', name:'Cabai Rawit Segar', unit:'ons', price:8000, desc:['Cabai rawit hasil kebun sendiri','Tingkat kepedasan pas untuk sambal rumahan'], status:'promo', promoPrice:6500 },
+  { id:'p4', cat:'sayur', icon:'🍆', name:'Terong Ungu', unit:'kg', price:9000, desc:['Ukuran sedang, empuk saat diolah','Cocok jadi balado atau lalap'], status:null },
   { id:'p5', cat:'sayur', icon:'🌿', name:'Daun Kelor', unit:'bungkus', price:3000, desc:['Daun kelor pilihan, kaya nutrisi','Cocok untuk sayur bening'], status:null },
   { id:'p6', cat:'sayur', icon:'🥒', name:'Timun Segar', unit:'kg', price:6000, desc:['Renyah untuk lalapan maupun acar','Dipanen langsung dari kebun'], status:'habis' },
   { id:'p7', cat:'olahan', icon:'🍌', name:'Keripik Pisang', unit:'bungkus 200g', price:12000, desc:['Digoreng renyah dengan minyak baru','Tanpa bahan pengawet'], status:'baru' },
@@ -1538,27 +1544,21 @@ document.getElementById('navWaBtnMobile').addEventListener('click', openAdminPic
    Tambah/kurangi slide dengan menambah/menghapus baris di array ini. */
 const HERO_SLIDES = [
   {
-    img: 'logo.png',
+    img: 'gallery/gallery-2.png',
     badge: null, badgeType: null,
-    title: 'Selamat Datang',
+    title: 'Dari Pekarangan Ngramang',
     subtitle: 'Sayur segar dipetik langsung untuk meja keluarga Anda.',
+    cta: '🛒 Lihat Produk', link: '#produk'
   },
   {
     img: 'produk-foto/cabai.jpg',
     badge: '⚡ Promo Hari Ini', badgeType: 'promo',
     title: 'Diskon Spesial Minggu Ini',
     subtitle: 'Cabai Rawit Segar mulai Rp 6.500/ons.',
-    cta: '🛒 Lihat Promo', link: '#produk'
+    cta: 'Lihat Promo', link: '#produk'
   },
   {
-    img: 'produk-foto/tomat.jpg',
-    badge: '🆕 Produk Baru', badgeType: 'baru',
-    title: 'Kerajinan Tangan Terbaru',
-    subtitle: 'Anyaman & rajutan buatan tangan ibu-ibu KWT.',
-    cta: 'Lihat Semua', link: '#produk'
-  },
-  {
-    img: 'produk-foto/kambing.jpg',
+    img: 'gallery/gallery-4.png',
     badge: '🆕 Produk Baru', badgeType: 'baru',
     title: 'Kerajinan Tangan Terbaru',
     subtitle: 'Anyaman & rajutan buatan tangan ibu-ibu KWT.',
