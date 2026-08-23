@@ -52,7 +52,7 @@
   "logo": "https://kedungsari.github.io/sritanjung/logo.png",
   "@id": "https://kedungsari.github.io/sritanjung/",
   "url": "https://kedungsari.github.io/sritanjung/",
-  "telephone": "+62-812-9683-690",
+  "telephone": "+62-813-2813-2552",
   "priceRange": "Rp5.000 - Rp100.000",
   "description": "Kelompok Wanita Tani Sri Tanjung menyediakan sayur segar, olahan pangan rumahan, dan kerajinan tangan dari Padukuhan Ngramang, Kalurahan Kedungsari.",
   "address": {
@@ -1245,9 +1245,8 @@ h1,h2,h3,h4{
    CATATAN UNTUK ADMIN: Atur status "online" (true/false) di sini
    secara manual sesuai siapa yang sedang aktif membalas pesan. */
 const ADMINS = [
-  { id:'a1', name:'Martina Trimiyem', wa:'6281328132552', online:true },
-  { id:'a2', name:'Bu Tosa', wa:'6281392143235', online:false },
-  { id:'a3', name:'Apti', wa:'6281328267973', online:false },
+  { id:'a1', name:'Bu Trimiyem', wa:'6281328132552', online:true },
+  { id:'a2', name:'Bu Tosa', wa:'6281392143235', online:true },
 ];
 
 function getInitials(name){
@@ -1278,26 +1277,24 @@ function waLink(admin, text){
    status: null | 'baru' | 'promo' | 'habis'
    promoPrice: isi jika status 'promo' (harga setelah diskon) */
 const PRODUCTS = [
-  { id:'p1', cat:'sayur', icon:'🥬', name:'Bayam Merah Segar', unit:'ikat', price:5000, desc:['Dipetik pagi hari dari pekarangan warga','Segar dan bebas pestisida kimia'], status:'baru' },
-  { id:'p2', cat:'sayur', icon:'🥦', name:'Kangkung Segar', unit:'ikat', price:4000, desc:['Kangkung darat pilihan, renyah','Cocok untuk tumis sehari-hari'], status:null },
+  { id:'p1', cat:'sayur', icon:'🥬', img:'produk-foto/bayam.jpg', name:'Bayam Merah Segar', unit:'ikat', price:5000, desc:['Dipetik pagi hari dari pekarangan warga','Segar dan bebas pestisida kimia'], status:'baru' },
+  { id:'p2', cat:'sayur', icon:'🥦', img:'produk-foto/kangkung.jpg', name:'Kangkung Segar', unit:'ikat', price:4000, desc:['Kangkung darat pilihan, renyah','Cocok untuk tumis sehari-hari'], status:null },
   { id:'p3', cat:'sayur', icon:'🌶️', img:'produk-foto/cabai.jpg', name:'Cabai Rawit Segar', unit:'ons', price:8000, desc:['Cabai rawit hasil kebun sendiri','Tingkat kepedasan pas untuk sambal rumahan'], status:'promo', promoPrice:6500 },
-  { id:'p4', cat:'sayur', icon:'🍆', name:'Terong Ungu', unit:'kg', price:9000, desc:['Ukuran sedang, empuk saat diolah','Cocok jadi balado atau lalap'], status:null },
-  { id:'p5', cat:'sayur', icon:'🌿', name:'Daun Kelor', unit:'bungkus', price:3000, desc:['Daun kelor pilihan, kaya nutrisi','Cocok untuk sayur bening'], status:null },
-  { id:'p6', cat:'sayur', icon:'🥒', name:'Timun Segar', unit:'kg', price:6000, desc:['Renyah untuk lalapan maupun acar','Dipanen langsung dari kebun'], status:'habis' },
-  { id:'p7', cat:'olahan', icon:'🍌', name:'Keripik Pisang', unit:'bungkus 200g', price:12000, desc:['Digoreng renyah dengan minyak baru','Tanpa bahan pengawet'], status:'baru' },
-  { id:'p8', cat:'olahan', icon:'🍠', name:'Keripik Singkong', unit:'bungkus 200g', price:11000, desc:['Singkong pilihan, diiris tipis','Digoreng garing merata'], status:null },
-  { id:'p9', cat:'olahan', icon:'🥜', name:'Peyek Kacang', unit:'bungkus', price:15000, desc:['Kacang tanah pilihan, gurih','Cocok jadi teman nasi'], status:null },
-  { id:'p10', cat:'olahan', icon:'🫙', name:'Jamu Beras Kencur', unit:'botol 350ml', price:10000, desc:['Racikan tradisional segar','Dibuat langsung tanpa bahan pengawet'], status:'promo', promoPrice:8500 },
-  { id:'p11', cat:'olahan', icon:'🫙', name:'Jamu Kunyit Asam', unit:'botol 350ml', price:10000, desc:['Menyegarkan, resep turun-temurun','Cocok diminum setiap hari'], status:null },
-  { id:'p12', cat:'olahan', icon:'🍯', name:'Wedang Uwuh Instan', unit:'bungkus', price:13000, desc:['Rempah pilihan khas Jawa','Nikmat diseduh hangat'], status:null },
-  { id:'p13', cat:'kerajinan', icon:'🧺', name:'Besek Bambu', unit:'buah', price:15000, desc:['Anyaman bambu rapi dan kuat','Cocok untuk wadah hantaran'], status:null },
-  { id:'p14', cat:'kerajinan', icon:'👜', name:'Tas Anyaman Pandan', unit:'buah', price:35000, desc:['Dianyam tangan oleh anggota KWT','Kuat dan bermotif khas desa'], status:'baru' },
-  { id:'p15', cat:'kerajinan', icon:'🧹', name:'Sapu Lidi', unit:'buah', price:12000, desc:['Lidi pilihan, kuat dan tahan lama','Untuk membersihkan halaman'], status:null },
-  { id:'p16', cat:'kerajinan', icon:'🧶', name:'Taplak Rajut', unit:'buah', price:40000, desc:['Rajutan halus buatan tangan','Mempercantik meja tamu Anda'], status:'habis' },
+  { id:'p4', cat:'sayur', icon:'🍆', img:'produk-foto/terong.jpg', name:'Terong Ungu', unit:'kg', price:9000, desc:['Ukuran sedang, empuk saat diolah','Cocok jadi balado atau lalap'], status:null },
+  { id:'p5', cat:'sayur', icon:'🌿', img:'produk-foto/kelor.jpg', name:'Daun Kelor', unit:'bungkus', price:3000, desc:['Daun kelor pilihan, kaya nutrisi','Cocok untuk sayur bening'], status:null },
+  { id:'p6', cat:'sayur', icon:'🥒', img:'produk-foto/timun.jpg', name:'Timun Segar', unit:'kg', price:6000, desc:['Renyah untuk lalapan maupun acar','Dipanen langsung dari kebun'], status:'habis' },
+  { id:'p7', cat:'olahan', icon:'🍌', img:'produk-foto/keripik_pisang.jpg', name:'Keripik Pisang', unit:'bungkus 200g', price:12000, desc:['Digoreng renyah dengan minyak baru','Tanpa bahan pengawet'], status:'baru' },
+  { id:'p8', cat:'olahan', icon:'🍠', img:'produk-foto/keripik_singkong.jpg', name:'Keripik Singkong', unit:'bungkus 200g', price:11000, desc:['Singkong pilihan, diiris tipis','Digoreng garing merata'], status:null },
+  { id:'p9', cat:'olahan', icon:'🥜', img:'produk-foto/peyek_kacang.jpg', name:'Peyek Kacang', unit:'bungkus', price:15000, desc:['Kacang tanah pilihan, gurih','Cocok jadi teman nasi'], status:null },
+  { id:'p10', cat:'olahan', icon:'🫙', img:'produk-foto/beras_kencur.jpg', name:'Jamu Beras Kencur', unit:'botol 350ml', price:10000, desc:['Racikan tradisional segar','Dibuat langsung tanpa bahan pengawet'], status:'promo', promoPrice:8500 },
+  { id:'p11', cat:'olahan', icon:'🫙', img:'produk-foto/kunyit_asam.jpg', name:'Jamu Kunyit Asam', unit:'botol 350ml', price:10000, desc:['Menyegarkan, resep turun-temurun','Cocok diminum setiap hari'], status:null },
+  { id:'p12', cat:'olahan', icon:'🍯', img:'produk-foto/wedang_uwuh.jpg', name:'Wedang Uwuh Instan', unit:'bungkus', price:13000, desc:['Rempah pilihan khas Jawa','Nikmat diseduh hangat'], status:null },
+  { id:'p13', cat:'ikan', icon:'🧺', img:'produk-foto/lele.jpg', name:'Ikan Lele', unit:'kg', price:25000, desc:['Ikan lele','Hasil budidaya'], status:null },
+  { id:'p14', cat:'ternak', icon:'👜', img:'produk-foto/kambing.jpg', name:'Kambing Jawa', unit:'ekor', price:3500000, desc:['Diternak oleh anggota KWT','Daging tebal, kering'], status:'baru' },
 ];
 
-const CAT_LABEL = { sayur:'Sayur & Kebun', olahan:'Olahan Pangan', kerajinan:'Kerajinan' };
-const CAT_CLASS = { sayur:'sayur', olahan:'olahan', kerajinan:'kerajinan' };
+const CAT_LABEL = { sayur:'Sayur & Kebun', olahan:'Olahan Pangan', ikan:'Perikanan', ternak:'Peternakan', kerajinan:'Kerajinan' };
+const CAT_CLASS = { sayur:'sayur', olahan:'olahan', ikan:'perikanan', ternak:'peternakan', kerajinan:'kerajinan' };
 const STATUS_LABEL = { baru:'Baru', promo:'Promo', habis:'Stok Habis' };
 
 /* ================= Render Produk ================= */
