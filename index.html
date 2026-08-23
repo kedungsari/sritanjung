@@ -1271,6 +1271,7 @@ h1,h2,h3,h4{
   <div class="cart-footer">
     <div class="cart-total"><span>Estimasi Total</span><span id="cartTotal">Rp 0</span></div>
     <a href="#" target="_blank" rel="noopener" class="btn btn-wa" id="checkoutBtn">💬 Checkout via WhatsApp</a>
+    <button type="button" class="btn btn-outline btn-sm" id="clearCartBtn" style="width:100%;justify-content:center;margin-top:0.7rem;">🗑️ Kosongkan Keranjang</button>
     <p class="hint">Harga estimasi. Total final dikonfirmasi admin via WhatsApp.</p>
   </div>
 </aside>
@@ -1453,14 +1454,27 @@ function removeItem(id){
   saveCart();
 }
 
+function clearCart(){
+  if(Object.keys(cart).length === 0) return;
+  if(confirm('Kosongkan semua produk dari keranjang?')){
+    cart = {};
+    saveCart();
+    showToast('Keranjang dikosongkan 🗑️');
+  }
+}
+
 function updateCartUI(){
   const itemsEl = document.getElementById('cartItems');
   const badge = document.getElementById('cartBadge');
   const totalEl = document.getElementById('cartTotal');
+  const clearBtn = document.getElementById('clearCartBtn');
+  const checkoutBtn = document.getElementById('checkoutBtn');
   const ids = Object.keys(cart);
   const count = ids.reduce((sum,id) => sum + cart[id], 0);
   badge.textContent = count;
   badge.style.display = count > 0 ? 'flex' : 'none';
+  clearBtn.style.display = ids.length > 0 ? 'inline-flex' : 'none';
+  checkoutBtn.style.display = ids.length > 0 ? 'inline-flex' : 'none';
 
   if(ids.length === 0){
     itemsEl.innerHTML = `<div class="cart-empty"><div class="emoji">🛒</div><p>Keranjang masih kosong.<br>Yuk pilih produk KWT Sri Tanjung!</p></div>`;
@@ -1534,6 +1548,7 @@ function openCart(){ cartDrawer.classList.add('open'); cartOverlay.classList.add
 function closeCart(){ cartDrawer.classList.remove('open'); cartOverlay.classList.remove('open'); }
 document.getElementById('cartBtn').addEventListener('click', openCart);
 document.getElementById('cartClose').addEventListener('click', closeCart);
+document.getElementById('clearCartBtn').addEventListener('click', clearCart);
 cartOverlay.addEventListener('click', closeCart);
 
 /* ================= Toast ================= */
