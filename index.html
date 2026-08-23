@@ -487,10 +487,16 @@ h1,h2,h3,h4{
   display:flex; align-items:center; justify-content:center;
   font-size: 3.4rem;
   position:relative;
+  overflow:hidden;
 }
 .product-visual.sayur{ background: linear-gradient(135deg, #DDEAC2, #B9D590); }
 .product-visual.olahan{ background: linear-gradient(135deg, #F3D488, #E3A93C); }
 .product-visual.kerajinan{ background: linear-gradient(135deg, #E4D3B8, #C7A876); }
+.product-visual img{
+  width:100%; height:100%;
+  object-fit: cover;
+  display:block;
+}
 
 .product-cat-tag{
   position:absolute; top:12px; left:12px;
@@ -1277,12 +1283,22 @@ function waLink(admin, text){
 /* ================= Data Produk =================
    CATATAN UNTUK ADMIN: Ini adalah CONTOH produk, harga & deskripsi.
    Silakan ubah/sesuaikan array di bawah ini dengan produk sebenarnya.
+
+   CARA PAKAI FOTO ASLI (JPG/PNG):
+   1. Simpan file foto di folder "produk-foto/" (folder ini sudah dibuatkan).
+   2. Tambahkan field img: 'produk-foto/nama-file.jpg' pada produk terkait.
+   3. JANGAN ubah field "id" (mis. 'p1','p2') — itu kode internal sistem
+      keranjang, bukan nama file foto.
+   4. Kalau field img dikosongkan/dihapus, produk otomatis memakai ikon emoji.
+   5. Foto sebaiknya rasio mendekati 4:3 (misal 800x600px), otomatis dipotong
+      rapi (crop) mengisi kotak foto.
+
    status: null | 'baru' | 'promo' | 'habis'
    promoPrice: isi jika status 'promo' (harga setelah diskon) */
 const PRODUCTS = [
-  { id:'cabai.jpg', cat:'sayur', icon:'🥬', name:'Bayam Merah Segar', unit:'per ikat', price:5000, desc:'Dipetik pagi hari dari pekarangan warga, segar dan bebas pestisida kimia.', status:'baru' },
+  { id:'p1', cat:'sayur', icon:'🥬', name:'Bayam Merah Segar', unit:'per ikat', price:5000, desc:'Dipetik pagi hari dari pekarangan warga, segar dan bebas pestisida kimia.', status:'baru' },
   { id:'p2', cat:'sayur', icon:'🥦', name:'Kangkung Segar', unit:'per ikat', price:4000, desc:'Kangkung darat pilihan, renyah dan cocok untuk tumis sehari-hari.', status:null },
-  { id:'p3', cat:'sayur', icon:'🌶️', name:'Cabai Rawit Segar', unit:'per ons', price:8000, desc:'Cabai rawit hasil kebun, tingkat kepedasan pas untuk sambal rumahan.', status:'promo', promoPrice:6500 },
+  { id:'p3', cat:'sayur', icon:'🌶️', img:'produk-foto/cabai.jpg', name:'Cabai Rawit Segar', unit:'per ons', price:8000, desc:'Cabai rawit hasil kebun, tingkat kepedasan pas untuk sambal rumahan.', status:'promo', promoPrice:6500 },
   { id:'p4', cat:'sayur', icon:'🍆', name:'Terong Ungu', unit:'per kg', price:9000, desc:'Terong segar ukuran sedang, empuk saat diolah jadi balado atau lalap.', status:null },
   { id:'p5', cat:'sayur', icon:'🌿', name:'Daun Kelor', unit:'per bungkus', price:3000, desc:'Daun kelor pilihan, kaya nutrisi, cocok untuk sayur bening.', status:null },
   { id:'p6', cat:'sayur', icon:'🥒', name:'Timun Segar', unit:'per kg', price:6000, desc:'Timun renyah untuk lalapan maupun acar, dipanen langsung dari kebun.', status:'habis' },
@@ -1316,7 +1332,7 @@ function renderProducts(filter){
       <div class="product-visual ${CAT_CLASS[p.cat]}">
         <span class="product-cat-tag">${CAT_LABEL[p.cat]}</span>
         ${p.status ? `<div class="status-badges"><span class="status-badge ${p.status}">${STATUS_LABEL[p.status]}</span></div>` : ''}
-        <span>${p.icon}</span>
+        ${p.img ? `<img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${p.icon}'}))">` : `<span>${p.icon}</span>`}
       </div>
       <div class="product-body">
         <h3>${p.name}</h3>
