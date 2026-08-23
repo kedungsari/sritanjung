@@ -432,7 +432,145 @@ h1,h2,h3,h4{
 }
 .product-body h3{ font-size: 1.08rem; color: var(--ink); font-family: var(--font-body); font-weight:700; }
 .product-body .unit{ color: var(--ink-soft); font-size:0.85rem; }
+.product-body .desc{ color: var(--ink-soft); font-size:0.85rem; line-height:1.5; margin-top:0.1rem; }
 .product-price{ font-family: var(--font-display); font-weight:700; color: var(--green-deep); font-size:1.25rem; margin-top:0.2rem; }
+.product-price .old-price{ font-family: var(--font-body); font-weight:600; color:#9a9a8c; text-decoration:line-through; font-size:0.9rem; margin-right:8px; }
+
+/* Product status badges */
+.product-card{ position:relative; }
+.status-badges{ position:absolute; top:12px; right:12px; display:flex; flex-direction:column; gap:6px; z-index:2; align-items:flex-end; }
+.status-badge{
+  font-size:0.68rem; font-weight:800; letter-spacing:0.03em; text-transform:uppercase;
+  padding: 4px 11px; border-radius:100px; color:#fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+.status-badge.baru{ background: var(--green-deep); }
+.status-badge.promo{ background: #C0392B; }
+.status-badge.habis{ background: #8b8b80; }
+.product-card.is-habis .product-visual{ filter: grayscale(0.7); opacity:0.7; }
+.product-card.is-habis .qty-add{ background:#c7c7bb; color:#6b6b60; cursor:not-allowed; }
+.product-card.is-habis .wa-quick{ pointer-events:none; opacity:0.5; }
+
+/* ============ Gallery ============ */
+.gallery{ padding: 5rem 0 6rem; }
+.gallery-grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.3rem;
+  margin-bottom: 3rem;
+}
+.gallery-item{
+  border-radius: var(--radius-md);
+  overflow:hidden;
+  cursor:pointer;
+  box-shadow: var(--shadow);
+  position:relative;
+  aspect-ratio: 4/3;
+  border:none;
+  padding:0;
+  background:none;
+}
+.gallery-item img{ width:100%; height:100%; object-fit:cover; transition: transform .4s ease; }
+.gallery-item:hover img{ transform: scale(1.06); }
+
+.video-wrap{
+  position:relative;
+  border-radius: var(--radius-lg);
+  overflow:hidden;
+  box-shadow: var(--shadow);
+  max-width: 860px;
+  margin: 0 auto;
+  aspect-ratio: 16/9;
+}
+.video-wrap img{ width:100%; height:100%; object-fit:cover; }
+.video-embed{ position:absolute; inset:0; width:100%; height:100%; border:none; display:none; }
+
+/* Lightbox */
+.lightbox{
+  position:fixed; inset:0; background: rgba(20,28,15,0.88);
+  display:flex; align-items:center; justify-content:center;
+  z-index: 1400; opacity:0; pointer-events:none; transition: opacity .3s ease;
+  padding: 24px;
+}
+.lightbox.open{ opacity:1; pointer-events:auto; }
+.lightbox img{ max-width: min(900px,92vw); max-height:82vh; border-radius: var(--radius-md); }
+.lightbox-caption{ color:#fff; text-align:center; margin-top:1rem; font-weight:600; }
+.lightbox-close{
+  position:absolute; top:22px; right:28px;
+  background: rgba(255,255,255,0.15); color:#fff; border:none;
+  width:44px; height:44px; border-radius:50%; font-size:1.4rem; cursor:pointer;
+}
+
+/* ============ Admin / Multi-WA Picker ============ */
+.admin-grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.3rem;
+  margin-top: 1.6rem;
+}
+.admin-card{
+  background: var(--paper);
+  border-radius: var(--radius-md);
+  padding: 1.6rem 1.4rem;
+  box-shadow: var(--shadow);
+  text-align:center;
+}
+.admin-avatar{
+  width:64px; height:64px; border-radius:50%;
+  background: var(--green-light);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.6rem; font-weight:800; color: var(--green-deep);
+  margin: 0 auto 0.9rem;
+}
+.admin-status{
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:0.78rem; font-weight:700;
+  margin: 0.3rem 0 1rem;
+}
+.admin-status .dot{ width:9px; height:9px; border-radius:50%; }
+.admin-status.online{ color: var(--green-deep); }
+.admin-status.online .dot{ background:#3F9142; box-shadow:0 0 0 3px rgba(63,145,66,0.2); }
+.admin-status.offline{ color:#8b8b80; }
+.admin-status.offline .dot{ background:#b5b5a8; }
+
+.admin-picker-overlay{
+  position:fixed; inset:0; background: rgba(32,43,28,0.45);
+  opacity:0; pointer-events:none; transition:opacity .3s ease; z-index:1200;
+}
+.admin-picker-overlay.open{ opacity:1; pointer-events:auto; }
+.admin-picker{
+  position:fixed; bottom:24px; right:24px;
+  background: var(--cream);
+  border-radius: var(--radius-lg);
+  width: min(340px, 90vw);
+  box-shadow: 0 24px 50px rgba(0,0,0,0.25);
+  z-index: 1300;
+  transform: translateY(20px) scale(0.96);
+  opacity:0; pointer-events:none;
+  transition: all .25s ease;
+  overflow:hidden;
+}
+.admin-picker.open{ transform: translateY(0) scale(1); opacity:1; pointer-events:auto; }
+.admin-picker-head{
+  background: var(--green-deep); color:#fff;
+  padding: 1.1rem 1.3rem; display:flex; justify-content:space-between; align-items:center;
+}
+.admin-picker-head h4{ font-family: var(--font-display); font-size:1.05rem; }
+.admin-picker-close{ background:none; border:none; color:#fff; font-size:1.3rem; cursor:pointer; }
+.admin-picker-list{ padding: 0.7rem; display:flex; flex-direction:column; gap:0.5rem; max-height:320px; overflow-y:auto; }
+.admin-picker-item{
+  display:flex; align-items:center; gap:0.8rem;
+  padding: 0.7rem 0.8rem; border-radius: var(--radius-sm);
+  text-decoration:none; color: var(--ink);
+  transition: background .2s ease;
+}
+.admin-picker-item:hover{ background: var(--cream-deep); }
+.admin-picker-item .avatar{
+  width:40px; height:40px; border-radius:50%; background: var(--green-light);
+  display:flex; align-items:center; justify-content:center; font-weight:800; color: var(--green-deep); flex-shrink:0;
+}
+.admin-picker-item .info h5{ font-size:0.9rem; font-weight:700; }
+.admin-picker-item .info span{ font-size:0.76rem; }
 
 .product-actions{
   display:flex;
@@ -570,6 +708,8 @@ h1,h2,h3,h4{
   display:flex; align-items:center; justify-content:center;
   font-size:1.7rem;
   text-decoration:none;
+  border: none;
+  cursor: pointer;
   box-shadow: 0 14px 30px -10px rgba(46,74,28,0.55);
   z-index: 900;
   transition: transform .25s ease;
@@ -667,6 +807,12 @@ h1,h2,h3,h4{
   .hero-art{ order:-1; max-width:320px; margin:0 auto; }
   .steps-grid{ grid-template-columns:1fr; }
   .contact-grid{ grid-template-columns:1fr; }
+  .gallery-grid{ grid-template-columns: repeat(2,1fr); }
+  .admin-grid{ grid-template-columns: 1fr; }
+}
+@media (max-width: 480px){
+  .admin-picker{ right:12px; bottom:12px; width: calc(100vw - 24px); }
+  .gallery-grid{ grid-template-columns: 1fr; }
 }
 @media (max-width: 768px){
   .nav-menu{
@@ -709,12 +855,13 @@ h1,h2,h3,h4{
       <li><a href="#beranda">Beranda</a></li>
       <li><a href="#tentang">Tentang</a></li>
       <li><a href="#produk">Produk</a></li>
+      <li><a href="#galeri">Galeri</a></li>
       <li><a href="#cara-pesan">Cara Pesan</a></li>
       <li><a href="#kontak">Kontak</a></li>
-      <li class="only-mobile"><a href="https://wa.me/628129683690" target="_blank" rel="noopener" class="btn btn-wa btn-sm">💬 WhatsApp</a></li>
+      <li class="only-mobile"><button class="btn btn-wa btn-sm" id="navWaBtnMobile">💬 WhatsApp</button></li>
     </ul>
     <div class="nav-actions">
-      <a href="https://wa.me/628129683690" target="_blank" rel="noopener" class="btn btn-wa btn-sm" style="display:none" id="navWaBtn">💬 WhatsApp</a>
+      <button class="btn btn-wa btn-sm" style="display:none" id="navWaBtn">💬 WhatsApp</button>
       <button class="cart-btn" id="cartBtn" aria-label="Buka keranjang belanja">
         🧺<span class="cart-badge" id="cartBadge">0</span>
       </button>
@@ -732,7 +879,7 @@ h1,h2,h3,h4{
       <p class="lead">KWT Sri Tanjung menghadirkan sayur segar, olahan pangan rumahan, dan kerajinan tangan buatan ibu-ibu tani Kalurahan Kedungsari — dipetik dan dibuat dengan tangan, dipesan cukup lewat WhatsApp.</p>
       <div class="hero-actions">
         <a href="#produk" class="btn btn-primary">🛒 Lihat Produk</a>
-        <a href="https://wa.me/628129683690?text=Halo%20KWT%20Sri%20Tanjung%2C%20saya%20ingin%20bertanya%20tentang%20produk." target="_blank" rel="noopener" class="btn btn-outline">💬 Chat WhatsApp</a>
+        <a href="#" id="heroWaBtn" target="_blank" rel="noopener" class="btn btn-outline">💬 Chat WhatsApp</a>
       </div>
       <div class="hero-badges">
         <span class="hero-badge"><span class="dot"></span>Segar dari kebun</span>
@@ -841,6 +988,31 @@ h1,h2,h3,h4{
   </div>
 </section>
 
+<!-- ============ Galeri & Video ============ -->
+<section class="gallery" id="galeri">
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow">Dokumentasi Kami</span>
+      <h2>Galeri Kegiatan</h2>
+      <p>Momen kebun, dapur produksi, dan kerajinan tangan anggota KWT Sri Tanjung. Foto asli menyusul.</p>
+    </div>
+
+    <div class="gallery-grid" id="galleryGrid"><!-- diisi oleh JavaScript --></div>
+
+    <div class="section-head center">
+      <span class="eyebrow">Video Profil</span>
+      <h2>Kenali Kami Lebih Dekat</h2>
+      <p>Video profil KWT Sri Tanjung akan segera hadir di sini.</p>
+    </div>
+    <div class="video-wrap" id="videoWrap">
+      <img src="gallery/video-placeholder.png" alt="Placeholder video profil KWT Sri Tanjung">
+      <!-- Saat video siap, ganti placeholder di atas dengan embed berikut:
+      <iframe class="video-embed" style="display:block" src="https://www.youtube.com/embed/ID_VIDEO" title="Video Profil KWT Sri Tanjung" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      -->
+    </div>
+  </div>
+</section>
+
 <!-- ============ Cara Pesan ============ -->
 <section class="steps" id="cara-pesan">
   <div class="container">
@@ -876,7 +1048,7 @@ h1,h2,h3,h4{
     <p>Dukung ibu-ibu tani Kedungsari dengan berbelanja produk segar dan buatan tangan langsung dari sumbernya.</p>
     <div class="hero-actions" style="justify-content:center;">
       <a href="#produk" class="btn btn-primary">🛒 Mulai Belanja</a>
-      <a href="https://wa.me/628129683690" target="_blank" rel="noopener" class="btn btn-outline">💬 Chat WhatsApp</a>
+      <a href="#" id="ctaWaBtn" target="_blank" rel="noopener" class="btn btn-outline">💬 Chat WhatsApp</a>
     </div>
   </div>
 </section>
@@ -898,12 +1070,18 @@ h1,h2,h3,h4{
         <a href="https://www.google.com/maps/search/?api=1&query=Ngramang%2C%20Kedungsari%2C%20Pengasih%2C%20Kulon%20Progo" target="_blank" rel="noopener" class="btn btn-outline btn-sm">🗺️ Buka di Google Maps</a>
       </div>
       <div class="contact-card reveal">
-        <h3>💬 WhatsApp</h3>
-        <p>+62 812-9683-690</p>
-        <p>Layanan pemesanan & informasi produk</p>
-        <a href="https://wa.me/628129683690" target="_blank" rel="noopener" class="btn btn-wa btn-sm">Chat Sekarang</a>
+        <h3>💬 Jam Layanan WhatsApp</h3>
+        <p>Admin kami siap membantu setiap hari.</p>
+        <p>Status online/offline tiap admin bisa dilihat langsung di kartu sebelah.</p>
+        <button class="btn btn-wa btn-sm" id="openAdminPickerBtn">Pilih Admin & Chat</button>
       </div>
     </div>
+
+    <div class="section-head center" style="margin-top:3.5rem;">
+      <span class="eyebrow">Tim Admin</span>
+      <h2 style="font-size:1.7rem;">Hubungi Admin Kami</h2>
+    </div>
+    <div class="admin-grid" id="adminGrid"><!-- diisi oleh JavaScript --></div>
   </div>
 </section>
 
@@ -928,7 +1106,7 @@ h1,h2,h3,h4{
         <div>
           <h4>Kontak</h4>
           <ul>
-            <li><a href="https://wa.me/628129683690" target="_blank" rel="noopener">WhatsApp: 0812-9683-690</a></li>
+            <li><a href="#" id="footerWaBtn" target="_blank" rel="noopener">WhatsApp Admin Kami</a></li>
             <li><a href="https://www.google.com/maps/search/?api=1&query=Ngramang%2C%20Kedungsari%2C%20Pengasih%2C%20Kulon%20Progo" target="_blank" rel="noopener">Lihat Lokasi</a></li>
           </ul>
         </div>
@@ -939,7 +1117,7 @@ h1,h2,h3,h4{
 </footer>
 
 <!-- ============ Floating WhatsApp ============ -->
-<a href="https://wa.me/628129683690" target="_blank" rel="noopener" class="wa-float" aria-label="Chat WhatsApp">💬</a>
+<button class="wa-float" id="waFloatBtn" aria-label="Chat WhatsApp">💬</button>
 
 <!-- ============ Cart Drawer ============ -->
 <div class="cart-overlay" id="cartOverlay"></div>
@@ -958,33 +1136,72 @@ h1,h2,h3,h4{
 
 <div class="toast" id="toast"></div>
 
+<!-- ============ Lightbox Galeri ============ -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Tutup galeri">×</button>
+  <div>
+    <img id="lightboxImg" src="" alt="">
+    <p class="lightbox-caption" id="lightboxCaption"></p>
+  </div>
+</div>
+
+<!-- ============ Multi-Admin WhatsApp Picker ============ -->
+<div class="admin-picker-overlay" id="adminPickerOverlay"></div>
+<div class="admin-picker" id="adminPicker" role="dialog" aria-label="Pilih admin WhatsApp">
+  <div class="admin-picker-head">
+    <h4>💬 Chat dengan Admin</h4>
+    <button class="admin-picker-close" id="adminPickerClose" aria-label="Tutup">×</button>
+  </div>
+  <div class="admin-picker-list" id="adminPickerList"><!-- diisi oleh JavaScript --></div>
+</div>
+
 <script>
+/* ================= Data Admin (Multi-WA) =================
+   CATATAN UNTUK ADMIN: Atur status "online" (true/false) di sini
+   secara manual sesuai siapa yang sedang aktif membalas pesan. */
+const ADMINS = [
+  { id:'a1', name:'Martina Trimiyem', wa:'6281328132552', online:true },
+  { id:'a2', name:'Bu Tosa', wa:'6281392143235', online:false },
+  { id:'a3', name:'Apti', wa:'6281328267973', online:false },
+];
+
+function getInitials(name){
+  return name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+}
+function getDefaultAdmin(){
+  return ADMINS.find(a => a.online) || ADMINS[0];
+}
+function waLink(admin, text){
+  return `https://wa.me/${admin.wa}?text=${encodeURIComponent(text)}`;
+}
+
 /* ================= Data Produk =================
-   CATATAN UNTUK ADMIN: Ini adalah CONTOH produk & harga.
-   Silakan ubah/sesuaikan array di bawah ini dengan produk
-   dan harga sebenarnya dari KWT Sri Tanjung. */
+   CATATAN UNTUK ADMIN: Ini adalah CONTOH produk, harga & deskripsi.
+   Silakan ubah/sesuaikan array di bawah ini dengan produk sebenarnya.
+   status: null | 'baru' | 'promo' | 'habis'
+   promoPrice: isi jika status 'promo' (harga setelah diskon) */
 const PRODUCTS = [
-  { id:'p1', cat:'sayur', icon:'🥬', name:'Bayam Merah Segar', unit:'per ikat', price:5000 },
-  { id:'p2', cat:'sayur', icon:'🥦', name:'Kangkung Segar', unit:'per ikat', price:4000 },
-  { id:'p3', cat:'sayur', icon:'🌶️', name:'Cabai Rawit Segar', unit:'per ons', price:8000 },
-  { id:'p4', cat:'sayur', icon:'🍆', name:'Terong Ungu', unit:'per kg', price:9000 },
-  { id:'p5', cat:'sayur', icon:'🌿', name:'Daun Kelor', unit:'per bungkus', price:3000 },
-  { id:'p6', cat:'sayur', icon:'🥒', name:'Timun Segar', unit:'per kg', price:6000 },
-  { id:'p7', cat:'olahan', icon:'🍌', name:'Keripik Pisang', unit:'per bungkus 200g', price:12000 },
-  { id:'p8', cat:'olahan', icon:'🍠', name:'Keripik Singkong', unit:'per bungkus 200g', price:11000 },
-  { id:'p9', cat:'olahan', icon:'🥜', name:'Peyek Kacang', unit:'per bungkus', price:15000 },
-  { id:'p10', cat:'olahan', icon:'🫙', name:'Jamu Beras Kencur', unit:'per botol 350ml', price:10000 },
-  { id:'p11', cat:'olahan', icon:'🫙', name:'Jamu Kunyit Asam', unit:'per botol 350ml', price:10000 },
-  { id:'p12', cat:'olahan', icon:'🍯', name:'Wedang Uwuh Instan', unit:'per bungkus', price:13000 },
-  { id:'p13', cat:'kerajinan', icon:'🧺', name:'Besek Bambu', unit:'per buah', price:15000 },
-  { id:'p14', cat:'kerajinan', icon:'👜', name:'Tas Anyaman Pandan', unit:'per buah', price:35000 },
-  { id:'p15', cat:'kerajinan', icon:'🧹', name:'Sapu Lidi', unit:'per buah', price:12000 },
-  { id:'p16', cat:'kerajinan', icon:'🧶', name:'Taplak Rajut', unit:'per buah', price:40000 },
+  { id:'p1', cat:'sayur', icon:'🥬', name:'Bayam Merah Segar', unit:'per ikat', price:5000, desc:'Dipetik pagi hari dari pekarangan warga, segar dan bebas pestisida kimia.', status:'baru' },
+  { id:'p2', cat:'sayur', icon:'🥦', name:'Kangkung Segar', unit:'per ikat', price:4000, desc:'Kangkung darat pilihan, renyah dan cocok untuk tumis sehari-hari.', status:null },
+  { id:'p3', cat:'sayur', icon:'🌶️', name:'Cabai Rawit Segar', unit:'per ons', price:8000, desc:'Cabai rawit hasil kebun, tingkat kepedasan pas untuk sambal rumahan.', status:'promo', promoPrice:6500 },
+  { id:'p4', cat:'sayur', icon:'🍆', name:'Terong Ungu', unit:'per kg', price:9000, desc:'Terong segar ukuran sedang, empuk saat diolah jadi balado atau lalap.', status:null },
+  { id:'p5', cat:'sayur', icon:'🌿', name:'Daun Kelor', unit:'per bungkus', price:3000, desc:'Daun kelor pilihan, kaya nutrisi, cocok untuk sayur bening.', status:null },
+  { id:'p6', cat:'sayur', icon:'🥒', name:'Timun Segar', unit:'per kg', price:6000, desc:'Timun renyah untuk lalapan maupun acar, dipanen langsung dari kebun.', status:'habis' },
+  { id:'p7', cat:'olahan', icon:'🍌', name:'Keripik Pisang', unit:'per bungkus 200g', price:12000, desc:'Digoreng renyah dengan minyak baru, tanpa bahan pengawet.', status:'baru' },
+  { id:'p8', cat:'olahan', icon:'🍠', name:'Keripik Singkong', unit:'per bungkus 200g', price:11000, desc:'Singkong pilihan, diiris tipis dan digoreng garing.', status:null },
+  { id:'p9', cat:'olahan', icon:'🥜', name:'Peyek Kacang', unit:'per bungkus', price:15000, desc:'Peyek gurih dengan kacang tanah pilihan, cocok jadi teman nasi.', status:null },
+  { id:'p10', cat:'olahan', icon:'🫙', name:'Jamu Beras Kencur', unit:'per botol 350ml', price:10000, desc:'Racikan tradisional segar, dibuat langsung tanpa bahan pengawet.', status:'promo', promoPrice:8500 },
+  { id:'p11', cat:'olahan', icon:'🫙', name:'Jamu Kunyit Asam', unit:'per botol 350ml', price:10000, desc:'Menyegarkan dan cocok diminum setiap hari, resep turun-temurun.', status:null },
+  { id:'p12', cat:'olahan', icon:'🍯', name:'Wedang Uwuh Instan', unit:'per bungkus', price:13000, desc:'Rempah pilihan untuk minuman hangat khas Jawa.', status:null },
+  { id:'p13', cat:'kerajinan', icon:'🧺', name:'Besek Bambu', unit:'per buah', price:15000, desc:'Anyaman bambu rapi, cocok untuk wadah hantaran atau oleh-oleh.', status:null },
+  { id:'p14', cat:'kerajinan', icon:'👜', name:'Tas Anyaman Pandan', unit:'per buah', price:35000, desc:'Dianyam tangan oleh anggota KWT, kuat dan bermotif khas desa.', status:'baru' },
+  { id:'p15', cat:'kerajinan', icon:'🧹', name:'Sapu Lidi', unit:'per buah', price:12000, desc:'Lidi pilihan, kuat digunakan untuk membersihkan halaman.', status:null },
+  { id:'p16', cat:'kerajinan', icon:'🧶', name:'Taplak Rajut', unit:'per buah', price:40000, desc:'Rajutan halus buatan tangan, mempercantik meja tamu Anda.', status:'habis' },
 ];
 
 const CAT_LABEL = { sayur:'Sayur & Kebun', olahan:'Olahan Pangan', kerajinan:'Kerajinan' };
 const CAT_CLASS = { sayur:'sayur', olahan:'olahan', kerajinan:'kerajinan' };
-const WA_NUMBER = '628129683690';
+const STATUS_LABEL = { baru:'Baru', promo:'Promo', habis:'Stok Habis' };
 
 /* ================= Render Produk ================= */
 const grid = document.getElementById('productsGrid');
@@ -992,20 +1209,26 @@ function renderProducts(filter){
   grid.innerHTML = '';
   const list = filter === 'semua' ? PRODUCTS : PRODUCTS.filter(p => p.cat === filter);
   list.forEach(p => {
+    const isHabis = p.status === 'habis';
+    const isPromo = p.status === 'promo' && p.promoPrice;
     const card = document.createElement('div');
-    card.className = 'product-card reveal in';
+    card.className = 'product-card reveal in' + (isHabis ? ' is-habis' : '');
     card.innerHTML = `
       <div class="product-visual ${CAT_CLASS[p.cat]}">
         <span class="product-cat-tag">${CAT_LABEL[p.cat]}</span>
+        ${p.status ? `<div class="status-badges"><span class="status-badge ${p.status}">${STATUS_LABEL[p.status]}</span></div>` : ''}
         <span>${p.icon}</span>
       </div>
       <div class="product-body">
         <h3>${p.name}</h3>
         <span class="unit">${p.unit}</span>
-        <span class="product-price">Rp ${p.price.toLocaleString('id-ID')}</span>
+        <span class="desc">${p.desc || ''}</span>
+        <span class="product-price">${isPromo ? `<span class="old-price">Rp ${p.price.toLocaleString('id-ID')}</span>Rp ${p.promoPrice.toLocaleString('id-ID')}` : `Rp ${p.price.toLocaleString('id-ID')}`}</span>
         <div class="product-actions">
-          <button class="qty-add" data-id="${p.id}">+ Keranjang</button>
-          <a class="wa-quick" target="_blank" rel="noopener" href="https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Halo KWT Sri Tanjung, saya ingin memesan ' + p.name + ' (' + p.unit + '). Apakah stok tersedia?')}" aria-label="Pesan cepat via WhatsApp">💬</a>
+          ${isHabis
+            ? `<button class="qty-add" disabled>Stok Habis</button>`
+            : `<button class="qty-add" data-id="${p.id}">+ Keranjang</button>`}
+          <a class="wa-quick" target="_blank" rel="noopener" href="${waLink(getDefaultAdmin(), 'Halo KWT Sri Tanjung, saya ingin menanyakan ' + p.name + ' (' + p.unit + '). Apakah stok tersedia?')}" aria-label="Tanya produk via WhatsApp">💬</a>
         </div>
       </div>`;
     grid.appendChild(card);
@@ -1094,7 +1317,7 @@ function updateCartUI(){
     if(p) msg += `${i+1}. ${p.name} x${cart[id]} (Rp ${(p.price*cart[id]).toLocaleString('id-ID')})\n`;
   });
   msg += `\nEstimasi total: Rp ${total.toLocaleString('id-ID')}\n\nNama: \nAlamat: \n\nMohon konfirmasi ketersediaan, harga, dan ongkos kirim. Terima kasih 🙏`;
-  document.getElementById('checkoutBtn').href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
+  document.getElementById('checkoutBtn').href = waLink(getDefaultAdmin(), msg);
 }
 
 document.body.addEventListener('click', e => {
@@ -1128,6 +1351,93 @@ function showToast(text){
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
 }
+
+/* ================= Galeri & Lightbox ================= */
+const GALLERY_ITEMS = [
+  { src:'gallery/gallery-1.png', caption:'Kegiatan Kelompok Tani' },
+  { src:'gallery/gallery-2.png', caption:'Panen Sayur Bersama' },
+  { src:'gallery/gallery-3.png', caption:'Olahan Pangan Rumahan' },
+  { src:'gallery/gallery-4.png', caption:'Kerajinan Tangan' },
+  { src:'gallery/gallery-5.png', caption:'Pelatihan & Pertemuan' },
+  { src:'gallery/gallery-6.png', caption:'Produk Siap Kirim' },
+];
+const galleryGrid = document.getElementById('galleryGrid');
+GALLERY_ITEMS.forEach((item, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'gallery-item reveal in';
+  btn.innerHTML = `<img src="${item.src}" alt="${item.caption}" loading="lazy">`;
+  btn.addEventListener('click', () => openLightbox(i));
+  galleryGrid.appendChild(btn);
+});
+
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const lightboxCaption = document.getElementById('lightboxCaption');
+function openLightbox(i){
+  const item = GALLERY_ITEMS[i];
+  lightboxImg.src = item.src;
+  lightboxImg.alt = item.caption;
+  lightboxCaption.textContent = item.caption;
+  lightbox.classList.add('open');
+}
+document.getElementById('lightboxClose').addEventListener('click', () => lightbox.classList.remove('open'));
+lightbox.addEventListener('click', e => { if(e.target === lightbox) lightbox.classList.remove('open'); });
+
+/* ================= Multi-Admin WhatsApp Picker ================= */
+const DEFAULT_TEXT = 'Halo KWT Sri Tanjung, saya ingin bertanya tentang produk.';
+
+function renderAdminGrid(){
+  const el = document.getElementById('adminGrid');
+  el.innerHTML = '';
+  ADMINS.forEach(a => {
+    const card = document.createElement('div');
+    card.className = 'admin-card reveal in';
+    card.innerHTML = `
+      <div class="admin-avatar">${getInitials(a.name)}</div>
+      <h3>${a.name}</h3>
+      <div class="admin-status ${a.online ? 'online' : 'offline'}"><span class="dot"></span>${a.online ? 'Online' : 'Offline'}</div>
+      <a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="${waLink(a, DEFAULT_TEXT)}">Chat Sekarang</a>`;
+    el.appendChild(card);
+  });
+}
+renderAdminGrid();
+
+function renderAdminPickerList(){
+  const el = document.getElementById('adminPickerList');
+  el.innerHTML = '';
+  ADMINS.forEach(a => {
+    const link = document.createElement('a');
+    link.className = 'admin-picker-item';
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.href = waLink(a, DEFAULT_TEXT);
+    link.innerHTML = `
+      <div class="avatar">${getInitials(a.name)}</div>
+      <div class="info">
+        <h5>${a.name}</h5>
+        <span class="admin-status ${a.online ? 'online' : 'offline'}"><span class="dot"></span>${a.online ? 'Online' : 'Offline'}</span>
+      </div>`;
+    el.appendChild(link);
+  });
+}
+renderAdminPickerList();
+
+const adminPicker = document.getElementById('adminPicker');
+const adminPickerOverlay = document.getElementById('adminPickerOverlay');
+function openAdminPicker(){ adminPicker.classList.add('open'); adminPickerOverlay.classList.add('open'); }
+function closeAdminPicker(){ adminPicker.classList.remove('open'); adminPickerOverlay.classList.remove('open'); }
+document.getElementById('waFloatBtn').addEventListener('click', openAdminPicker);
+document.getElementById('adminPickerClose').addEventListener('click', closeAdminPicker);
+adminPickerOverlay.addEventListener('click', closeAdminPicker);
+document.getElementById('openAdminPickerBtn').addEventListener('click', openAdminPicker);
+document.getElementById('navWaBtn').addEventListener('click', openAdminPicker);
+document.getElementById('navWaBtnMobile').addEventListener('click', openAdminPicker);
+
+/* Set dynamic single-target WhatsApp links to the default (first online) admin */
+['heroWaBtn','ctaWaBtn','footerWaBtn'].forEach(id => {
+  const el = document.getElementById(id);
+  if(el) el.href = waLink(getDefaultAdmin(), DEFAULT_TEXT);
+});
 
 /* ================= Mobile Menu ================= */
 const menuToggle = document.getElementById('menuToggle');
