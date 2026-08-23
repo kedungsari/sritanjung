@@ -324,12 +324,14 @@ h1,h2,h3,h4{
 }
 .flash-track{
   display:flex;
+  width:100%;
   transition: transform .55s cubic-bezier(.65,.05,.36,1);
 }
 .flash-slide{
   position:relative;
-  min-width:100%;
-  flex-shrink:0;
+  flex: 0 0 100%;
+  width:100%;
+  max-width:100%;
   aspect-ratio: 4 / 3.3;
   overflow:hidden;
   background: linear-gradient(135deg, var(--green-mid), var(--green));
@@ -501,14 +503,14 @@ h1,h2,h3,h4{
 }
 
 .product-cat-tag{
-  position:absolute; top:12px; left:12px;
-  background: rgba(255,255,255,0.85);
+  align-self:flex-start;
+  background: var(--cream-deep);
   color: var(--green-deep);
   font-size:0.68rem;
   font-weight:800;
   letter-spacing:0.04em;
   text-transform:uppercase;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 100px;
 }
 
@@ -516,13 +518,27 @@ h1,h2,h3,h4{
   padding: 1.3rem 1.4rem 1.5rem;
   display:flex;
   flex-direction:column;
-  gap:0.5rem;
+  gap:0.6rem;
   flex-grow:1;
 }
 .product-body h3{ font-size: 1.08rem; color: var(--ink); font-family: var(--font-body); font-weight:700; }
-.product-body .unit{ color: var(--ink-soft); font-size:0.85rem; }
-.product-body .desc{ color: var(--ink-soft); font-size:0.85rem; line-height:1.5; margin-top:0.1rem; }
-.product-price{ font-family: var(--font-display); font-weight:700; color: var(--green-deep); font-size:1.25rem; margin-top:0.2rem; }
+.desc-list{ list-style:none; display:flex; flex-direction:column; gap:0.3rem; }
+.desc-list li{
+  color: var(--ink-soft);
+  font-size:0.85rem;
+  line-height:1.5;
+  padding-left: 1.1rem;
+  position:relative;
+}
+.desc-list li::before{
+  content:"";
+  position:absolute; left:0; top:0.55em;
+  width:6px; height:6px;
+  border-radius:50%;
+  background: var(--green);
+}
+.product-price{ font-family: var(--font-display); font-weight:700; color: var(--green-deep); font-size:1.25rem; margin-top:0.1rem; }
+.product-price .unit-slash{ font-family: var(--font-body); font-weight:600; font-size:0.85rem; color: var(--ink-soft); }
 .product-price .old-price{ font-family: var(--font-body); font-weight:600; color:#9a9a8c; text-decoration:line-through; font-size:0.9rem; margin-right:8px; }
 
 /* Product status badges */
@@ -1244,25 +1260,27 @@ function waLink(admin, text){
    5. Foto sebaiknya rasio mendekati 4:3 (misal 800x600px), otomatis dipotong
       rapi (crop) mengisi kotak foto.
 
+   unit  : satuan singkat, tampil digabung dengan harga -> "Rp 5.000/ikat"
+   desc  : array berisi beberapa poin singkat, tampil sebagai list (bukan paragraf)
    status: null | 'baru' | 'promo' | 'habis'
    promoPrice: isi jika status 'promo' (harga setelah diskon) */
 const PRODUCTS = [
-  { id:'p1', cat:'sayur', icon:'🥬', img:'produk-foto/tomat.jpg', name:'Bayam Merah Segar', unit:'per ikat', price:5000, desc:'Dipetik pagi hari dari pekarangan warga, segar dan bebas pestisida kimia.', status:'baru' },
-  { id:'p2', cat:'sayur', icon:'🥦', img:'produk-foto/cabai.jpg', name:'Kangkung Segar', unit:'per ikat', price:4000, desc:'Kangkung darat pilihan, renyah dan cocok untuk tumis sehari-hari.', status:null },
-  { id:'p3', cat:'sayur', icon:'🌶️', img:'produk-foto/lele.jpg', name:'Cabai Rawit Segar', unit:'per ons', price:8000, desc:'Cabai rawit hasil kebun, tingkat kepedasan pas untuk sambal rumahan.', status:'promo', promoPrice:6500 },
-  { id:'p4', cat:'sayur', icon:'🍆', img:'produk-foto/kambing.jpg', name:'Terong Ungu', unit:'per kg', price:9000, desc:'Terong segar ukuran sedang, empuk saat diolah jadi balado atau lalap.', status:null },
-  { id:'p5', cat:'sayur', icon:'🌿', name:'Daun Kelor', unit:'per bungkus', price:3000, desc:'Daun kelor pilihan, kaya nutrisi, cocok untuk sayur bening.', status:null },
-  { id:'p6', cat:'sayur', icon:'🥒', name:'Timun Segar', unit:'per kg', price:6000, desc:'Timun renyah untuk lalapan maupun acar, dipanen langsung dari kebun.', status:'habis' },
-  { id:'p7', cat:'olahan', icon:'🍌', name:'Keripik Pisang', unit:'per bungkus 200g', price:12000, desc:'Digoreng renyah dengan minyak baru, tanpa bahan pengawet.', status:'baru' },
-  { id:'p8', cat:'olahan', icon:'🍠', name:'Keripik Singkong', unit:'per bungkus 200g', price:11000, desc:'Singkong pilihan, diiris tipis dan digoreng garing.', status:null },
-  { id:'p9', cat:'olahan', icon:'🥜', name:'Peyek Kacang', unit:'per bungkus', price:15000, desc:'Peyek gurih dengan kacang tanah pilihan, cocok jadi teman nasi.', status:null },
-  { id:'p10', cat:'olahan', icon:'🫙', name:'Jamu Beras Kencur', unit:'per botol 350ml', price:10000, desc:'Racikan tradisional segar, dibuat langsung tanpa bahan pengawet.', status:'promo', promoPrice:8500 },
-  { id:'p11', cat:'olahan', icon:'🫙', name:'Jamu Kunyit Asam', unit:'per botol 350ml', price:10000, desc:'Menyegarkan dan cocok diminum setiap hari, resep turun-temurun.', status:null },
-  { id:'p12', cat:'olahan', icon:'🍯', name:'Wedang Uwuh Instan', unit:'per bungkus', price:13000, desc:'Rempah pilihan untuk minuman hangat khas Jawa.', status:null },
-  { id:'p13', cat:'kerajinan', icon:'🧺', name:'Besek Bambu', unit:'per buah', price:15000, desc:'Anyaman bambu rapi, cocok untuk wadah hantaran atau oleh-oleh.', status:null },
-  { id:'p14', cat:'kerajinan', icon:'👜', name:'Tas Anyaman Pandan', unit:'per buah', price:35000, desc:'Dianyam tangan oleh anggota KWT, kuat dan bermotif khas desa.', status:'baru' },
-  { id:'p15', cat:'kerajinan', icon:'🧹', name:'Sapu Lidi', unit:'per buah', price:12000, desc:'Lidi pilihan, kuat digunakan untuk membersihkan halaman.', status:null },
-  { id:'p16', cat:'kerajinan', icon:'🧶', name:'Taplak Rajut', unit:'per buah', price:40000, desc:'Rajutan halus buatan tangan, mempercantik meja tamu Anda.', status:'habis' },
+  { id:'p1', cat:'sayur', icon:'🥬', img:'produk-foto/cabai.jpg', name:'Bayam Merah Segar', unit:'ikat', price:5000, desc:['Dipetik pagi hari dari pekarangan warga','Segar dan bebas pestisida kimia'], status:'baru' },
+  { id:'p2', cat:'sayur', icon:'🥦', img:'produk-foto/tomat.jpg', name:'Kangkung Segar', unit:'ikat', price:4000, desc:['Kangkung darat pilihan, renyah','Cocok untuk tumis sehari-hari'], status:null },
+  { id:'p3', cat:'sayur', icon:'🌶️', img:'produk-foto/lele.jpg', name:'Cabai Rawit Segar', unit:'ons', price:8000, desc:['Cabai rawit hasil kebun sendiri','Tingkat kepedasan pas untuk sambal rumahan'], status:'promo', promoPrice:6500 },
+  { id:'p4', cat:'sayur', icon:'🍆', img:'produk-foto/kambing.jpg', name:'Terong Ungu', unit:'kg', price:9000, desc:['Ukuran sedang, empuk saat diolah','Cocok jadi balado atau lalap'], status:null },
+  { id:'p5', cat:'sayur', icon:'🌿', name:'Daun Kelor', unit:'bungkus', price:3000, desc:['Daun kelor pilihan, kaya nutrisi','Cocok untuk sayur bening'], status:null },
+  { id:'p6', cat:'sayur', icon:'🥒', name:'Timun Segar', unit:'kg', price:6000, desc:['Renyah untuk lalapan maupun acar','Dipanen langsung dari kebun'], status:'habis' },
+  { id:'p7', cat:'olahan', icon:'🍌', name:'Keripik Pisang', unit:'bungkus 200g', price:12000, desc:['Digoreng renyah dengan minyak baru','Tanpa bahan pengawet'], status:'baru' },
+  { id:'p8', cat:'olahan', icon:'🍠', name:'Keripik Singkong', unit:'bungkus 200g', price:11000, desc:['Singkong pilihan, diiris tipis','Digoreng garing merata'], status:null },
+  { id:'p9', cat:'olahan', icon:'🥜', name:'Peyek Kacang', unit:'bungkus', price:15000, desc:['Kacang tanah pilihan, gurih','Cocok jadi teman nasi'], status:null },
+  { id:'p10', cat:'olahan', icon:'🫙', name:'Jamu Beras Kencur', unit:'botol 350ml', price:10000, desc:['Racikan tradisional segar','Dibuat langsung tanpa bahan pengawet'], status:'promo', promoPrice:8500 },
+  { id:'p11', cat:'olahan', icon:'🫙', name:'Jamu Kunyit Asam', unit:'botol 350ml', price:10000, desc:['Menyegarkan, resep turun-temurun','Cocok diminum setiap hari'], status:null },
+  { id:'p12', cat:'olahan', icon:'🍯', name:'Wedang Uwuh Instan', unit:'bungkus', price:13000, desc:['Rempah pilihan khas Jawa','Nikmat diseduh hangat'], status:null },
+  { id:'p13', cat:'kerajinan', icon:'🧺', name:'Besek Bambu', unit:'buah', price:15000, desc:['Anyaman bambu rapi dan kuat','Cocok untuk wadah hantaran'], status:null },
+  { id:'p14', cat:'kerajinan', icon:'👜', name:'Tas Anyaman Pandan', unit:'buah', price:35000, desc:['Dianyam tangan oleh anggota KWT','Kuat dan bermotif khas desa'], status:'baru' },
+  { id:'p15', cat:'kerajinan', icon:'🧹', name:'Sapu Lidi', unit:'buah', price:12000, desc:['Lidi pilihan, kuat dan tahan lama','Untuk membersihkan halaman'], status:null },
+  { id:'p16', cat:'kerajinan', icon:'🧶', name:'Taplak Rajut', unit:'buah', price:40000, desc:['Rajutan halus buatan tangan','Mempercantik meja tamu Anda'], status:'habis' },
 ];
 
 const CAT_LABEL = { sayur:'Sayur & Kebun', olahan:'Olahan Pangan', kerajinan:'Kerajinan' };
@@ -1281,15 +1299,16 @@ function renderProducts(filter){
     card.className = 'product-card reveal in' + (isHabis ? ' is-habis' : '');
     card.innerHTML = `
       <div class="product-visual ${CAT_CLASS[p.cat]}">
-        <span class="product-cat-tag">${CAT_LABEL[p.cat]}</span>
         ${p.status ? `<div class="status-badges"><span class="status-badge ${p.status}">${STATUS_LABEL[p.status]}</span></div>` : ''}
         ${p.img ? `<img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${p.icon}'}))">` : `<span>${p.icon}</span>`}
       </div>
       <div class="product-body">
+        <span class="product-cat-tag">${CAT_LABEL[p.cat]}</span>
         <h3>${p.name}</h3>
-        <span class="unit">${p.unit}</span>
-        <span class="desc">${p.desc || ''}</span>
-        <span class="product-price">${isPromo ? `<span class="old-price">Rp ${p.price.toLocaleString('id-ID')}</span>Rp ${p.promoPrice.toLocaleString('id-ID')}` : `Rp ${p.price.toLocaleString('id-ID')}`}</span>
+        <ul class="desc-list">${(p.desc || []).map(line => `<li>${line}</li>`).join('')}</ul>
+        <span class="product-price">${isPromo
+            ? `<span class="old-price">Rp ${p.price.toLocaleString('id-ID')}</span>Rp ${p.promoPrice.toLocaleString('id-ID')}<span class="unit-slash">/${p.unit}</span>`
+            : `Rp ${p.price.toLocaleString('id-ID')}<span class="unit-slash">/${p.unit}</span>`}</span>
         <div class="product-actions">
           ${isHabis
             ? `<button class="qty-add" disabled>Stok Habis</button>`
@@ -1529,10 +1548,17 @@ const HERO_SLIDES = [
     badge: '⚡ Promo Hari Ini', badgeType: 'promo',
     title: 'Diskon Spesial Minggu Ini',
     subtitle: 'Cabai Rawit Segar mulai Rp 6.500/ons.',
-    cta: 'Lihat Promo', link: '#produk'
+    cta: '🛒 Lihat Promo', link: '#produk'
   },
   {
     img: 'produk-foto/tomat.jpg',
+    badge: '🆕 Produk Baru', badgeType: 'baru',
+    title: 'Kerajinan Tangan Terbaru',
+    subtitle: 'Anyaman & rajutan buatan tangan ibu-ibu KWT.',
+    cta: 'Lihat Semua', link: '#produk'
+  },
+  {
+    img: 'produk-foto/kambing.jpg',
     badge: '🆕 Produk Baru', badgeType: 'baru',
     title: 'Kerajinan Tangan Terbaru',
     subtitle: 'Anyaman & rajutan buatan tangan ibu-ibu KWT.',
