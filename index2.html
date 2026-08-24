@@ -97,6 +97,16 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 
+/* ============ Proteksi ringan konten ============
+   Mencegah blok/seleksi teks secara sengaja lewat drag mouse, supaya
+   copy-paste isi halaman tidak semudah itu. Form/input tetap bisa
+   diketik & di-select normal (dikecualikan di bawah) supaya pengunjung
+   tetap bisa isi nama/alamat dengan nyaman. Catatan: ini hanya penghalang
+   ringan untuk pengunjung awam, bukan proteksi teknis penuh (lihat
+   penjelasan di komentar dekat script anti klik-kanan di bagian bawah). */
+body{ -webkit-user-select:none; -moz-user-select:none; user-select:none; }
+input, textarea, select{ -webkit-user-select:text; -moz-user-select:text; user-select:text; }
+
 body{
   font-family: var(--font-body);
   background: var(--cream);
@@ -351,6 +361,37 @@ h1,h2,h3,h4{
 .flash-slide.no-photo{
   display:flex; align-items:center; justify-content:center;
   font-size:3.6rem;
+}
+
+/* Slide khusus logo/gambar transparan (logo:true) — latar krem bersih,
+   gambar ditampilkan utuh (tidak di-crop), tanpa lapisan gelap di atasnya */
+.flash-slide-logo{
+  background: var(--cream) !important;
+  display:flex; align-items:center; justify-content:center;
+}
+.flash-slide-logo img{
+  width:100%; height:100%;
+  object-fit: contain;
+  padding: 2.2rem 2rem 4.6rem;
+  box-sizing: border-box;
+}
+.flash-caption-plain{
+  position:absolute; left:0; right:0; bottom:0;
+  padding: 0.9rem 1.4rem 1rem;
+  background: rgba(255,255,255,0.94);
+  border-top: 1px solid rgba(46,74,28,0.08);
+  text-align:left;
+}
+.flash-caption-plain h3{
+  color: var(--green-deep);
+  font-size:1.05rem;
+  margin-bottom:0.1rem;
+  line-height:1.2;
+}
+.flash-caption-plain p{
+  color: var(--ink-soft);
+  font-size:0.82rem;
+  margin:0;
 }
 .flash-overlay{
   position:absolute; left:0; right:0; bottom:0;
@@ -943,6 +984,10 @@ h1,h2,h3,h4{
 .cart-total{ display:flex; justify-content:space-between; font-weight:700; margin-bottom:1rem; font-size:1.05rem; }
 .cart-footer .btn{ width:100%; justify-content:center; }
 .cart-footer p.hint{ font-size:0.78rem; color: var(--ink-soft); margin-top:0.7rem; text-align:center; }
+.checkout-buttons{ display:flex; flex-direction:column; gap:0.8rem; }
+.checkout-group{ display:flex; flex-direction:column; gap:0.4rem; }
+.checkout-group-label{ font-size:0.78rem; color: var(--ink-soft); display:flex; justify-content:space-between; padding:0 2px; }
+.checkout-group-label strong{ color: var(--ink); }
 
 /* ============ Scroll reveal ============ */
 .reveal{ opacity:0; transform: translateY(24px); transition: all .7s ease; }
@@ -1309,7 +1354,7 @@ h1,h2,h3,h4{
   <div class="cart-items" id="cartItems"></div>
   <div class="cart-footer">
     <div class="cart-total"><span>Estimasi Total</span><span id="cartTotal">Rp 0</span></div>
-    <a href="#" target="_blank" rel="noopener" class="btn btn-wa" id="checkoutBtn">💬 Checkout via WhatsApp</a>
+    <div class="checkout-buttons" id="checkoutButtons"><!-- diisi oleh JavaScript --></div>
     <button type="button" class="btn btn-outline btn-sm" id="clearCartBtn" style="width:100%;justify-content:center;margin-top:0.7rem;">🗑️ Kosongkan Keranjang</button>
     <p class="hint">Harga estimasi. Total final dikonfirmasi admin via WhatsApp.</p>
   </div>
@@ -1366,6 +1411,18 @@ function getDefaultAdmin(){
 function waLink(admin, text){
   return `https://wa.me/${admin.wa}?text=${encodeURIComponent(text)}`;
 }
+/* Menentukan tujuan WA untuk 1 produk:
+   - Kalau produk punya field "wa" sendiri, pakai itu (cari juga namanya di
+     daftar ADMINS kalau nomornya sama, supaya nama kontak tetap muncul rapi).
+   - Kalau tidak ada, pakai admin default seperti biasa (perilaku lama). */
+function resolveWaTarget(p){
+  if(p.wa){
+    const known = ADMINS.find(a => a.wa === p.wa);
+    if(known) return known;
+    return { id:'custom-'+p.wa, name: p.waName || 'Kontak Produk Ini', wa: p.wa, online:true };
+  }
+  return getDefaultAdmin();
+}
 
 /* ================= Data Produk =================
    CATATAN UNTUK ADMIN: Ini adalah CONTOH produk, harga & deskripsi.
@@ -1388,9 +1445,20 @@ function waLink(admin, text){
    unit  : satuan singkat, tampil digabung dengan harga -> "Rp 5.000/ikat"
    desc  : array berisi beberapa poin singkat, tampil sebagai list (bukan paragraf)
    status: null | 'baru' | 'promo' | 'habis'
-   promoPrice: isi jika status 'promo' (harga setelah diskon) */
+   promoPrice: isi jika status 'promo' (harga setelah diskon)
+
+   NOMOR WA KHUSUS PER PRODUK (opsional):
+   Secara default, tombol chat 💬 di tiap produk dan checkout keranjang akan
+   mengirim pesan ke Admin utama (lihat ADMINS di bawah). Kalau produk
+   tertentu dijual/dikelola orang lain dengan nomor WA sendiri (misal hasil
+   ternak/ikan dari anggota lain), tambahkan field berikut pada produk itu:
+     wa     : '62812xxxxxxxx'   -> nomor WA tujuan (format 62xxx, tanpa tanda + )
+     waName : 'Pak Slamet'      -> nama kontak (opsional, biar rapi di layar keranjang)
+   Kalau field wa dikosongkan/dihapus, produk otomatis kembali memakai Admin
+   utama seperti biasa. Kalau isi keranjang berasal dari nomor WA berbeda-beda,
+   tombol checkout otomatis dipecah per nomor tujuan (lihat bagian Cart Logic). */
 const PRODUCTS = [
-  { id:'p1', cat:'sayur', icon:'🥬', imgs:['produk-foto/bayam.jpg', 'produk-foto/bayam2.jpg', 'produk-foto/bayam3.jpg'], name:'Bayam Merah Segar', unit:'ikat', price:5000, desc:['Dipetik pagi hari dari pekarangan warga','Segar dan bebas pestisida kimia'], status:'baru' },
+  { id:'p1', cat:'sayur', icon:'🥬', imgs:['produk-foto/bayam.jpg'], name:'Bayam Merah Segar', unit:'ikat', price:5000, desc:['Dipetik pagi hari dari pekarangan warga','Segar dan bebas pestisida kimia'], status:'baru' },
   { id:'p2', cat:'sayur', icon:'🥦', imgs:['produk-foto/kangkung.jpg'], name:'Kangkung Segar', unit:'ikat', price:4000, desc:['Kangkung darat pilihan, renyah','Cocok untuk tumis sehari-hari'], status:null },
   { id:'p3', cat:'sayur', icon:'🌶️', imgs:['produk-foto/cabai.jpg'], name:'Cabai Rawit Segar', unit:'ons', price:8000, desc:['Cabai rawit hasil kebun sendiri','Tingkat kepedasan pas untuk sambal rumahan'], status:'promo', promoPrice:6500 },
   { id:'p4', cat:'sayur', icon:'🍆', imgs:['produk-foto/terong.jpg'], name:'Terong Ungu', unit:'kg', price:9000, desc:['Ukuran sedang, empuk saat diolah','Cocok jadi balado atau lalap'], status:null },
@@ -1403,7 +1471,7 @@ const PRODUCTS = [
   { id:'p11', cat:'olahan', icon:'🫙', imgs:['produk-foto/kunyit_asam.jpg'], name:'Jamu Kunyit Asam', unit:'botol 350ml', price:10000, desc:['Menyegarkan, resep turun-temurun','Cocok diminum setiap hari'], status:null },
   { id:'p12', cat:'olahan', icon:'🍯', imgs:['produk-foto/wedang_uwuh.jpg'], name:'Wedang Uwuh Instan', unit:'bungkus', price:13000, desc:['Rempah pilihan khas Jawa','Nikmat diseduh hangat'], status:null },
   { id:'p13', cat:'ikan', icon:'🐟', imgs:['produk-foto/lele.jpg'], name:'Ikan Lele', unit:'kg', price:25000, desc:['Ikan lele','Hasil budidaya'], status:null },
-  { id:'p14', cat:'ternak', icon:'🐐', imgs:['produk-foto/kambing.jpg', 'produk-foto/kambing2.jpg', 'produk-foto/kambing3.jpg'], name:'Kambing Jawa', unit:'ekor', price:3500000, desc:['Diternak oleh anggota KWT','Daging tebal, kering'], status:'baru' },
+  { id:'p14', cat:'ternak', icon:'🐐', imgs:['produk-foto/kambing.jpg'], name:'Kambing Jawa', unit:'ekor', price:3500000, desc:['Diternak oleh anggota KWT','Daging tebal, kering'], status:'baru' },
 ];
 
 const CAT_LABEL = { sayur:'Sayur & Kebun', olahan:'Olahan Pangan', ikan:'Perikanan', ternak:'Peternakan', kerajinan:'Kerajinan', lain:'Lain-lain' };
@@ -1448,7 +1516,7 @@ function renderProducts(filter){
           ${isHabis
             ? `<button class="qty-add" disabled>Stok Habis</button>`
             : `<button class="qty-add" data-id="${p.id}">+ Keranjang</button>`}
-          <a class="wa-quick" target="_blank" rel="noopener" href="${waLink(getDefaultAdmin(), 'Halo KWT Sri Tanjung, saya ingin menanyakan ' + p.name + ' (' + p.unit + '). Apakah stok tersedia?')}" aria-label="Tanya produk via WhatsApp">💬</a>
+          <a class="wa-quick" target="_blank" rel="noopener" href="${waLink(resolveWaTarget(p), 'Halo, saya ingin menanyakan ' + p.name + ' (' + p.unit + '). Apakah stok tersedia?')}" aria-label="Tanya produk via WhatsApp">💬</a>
         </div>
       </div>`;
     grid.appendChild(card);
@@ -1526,13 +1594,12 @@ function updateCartUI(){
   const badge = document.getElementById('cartBadge');
   const totalEl = document.getElementById('cartTotal');
   const clearBtn = document.getElementById('clearCartBtn');
-  const checkoutBtn = document.getElementById('checkoutBtn');
+  const checkoutButtonsEl = document.getElementById('checkoutButtons');
   const ids = Object.keys(cart);
   const count = ids.reduce((sum,id) => sum + cart[id], 0);
   badge.textContent = count;
   badge.style.display = count > 0 ? 'flex' : 'none';
   clearBtn.style.display = ids.length > 0 ? 'inline-flex' : 'none';
-  checkoutBtn.style.display = ids.length > 0 ? 'inline-flex' : 'none';
 
   if(ids.length === 0){
     itemsEl.innerHTML = `<div class="cart-empty"><div class="emoji">🛒</div><p>Keranjang masih kosong.<br>Yuk pilih produk KWT Sri Tanjung!</p></div>`;
@@ -1565,14 +1632,37 @@ function updateCartUI(){
   });
   totalEl.textContent = 'Rp ' + total.toLocaleString('id-ID');
 
-  // Build WhatsApp checkout message
-  let msg = 'Halo KWT Sri Tanjung, saya ingin memesan:\n';
-  ids.forEach((id,i) => {
+  /* ---- Kelompokkan isi keranjang per nomor WA tujuan ----
+     Kalau semua produk pakai Admin yang sama (kasus umum), hasilnya cuma
+     1 grup -> tampil 1 tombol checkout seperti biasa. Kalau ada produk
+     dengan nomor WA sendiri, otomatis terpecah jadi beberapa tombol supaya
+     pesan terkirim ke orang yang tepat. */
+  const groups = {}; // key: nomor wa -> { admin, items:[], subtotal }
+  ids.forEach(id => {
     const p = PRODUCTS.find(x => x.id === id);
-    if(p) msg += `${i+1}. ${p.name} x${cart[id]} (Rp ${(p.price*cart[id]).toLocaleString('id-ID')})\n`;
+    if(!p) return;
+    const admin = resolveWaTarget(p);
+    if(!groups[admin.wa]) groups[admin.wa] = { admin, items: [], subtotal: 0 };
+    groups[admin.wa].items.push({ p, qty: cart[id] });
+    groups[admin.wa].subtotal += p.price * cart[id];
   });
-  msg += `\nEstimasi total: Rp ${total.toLocaleString('id-ID')}\n\nNama: \nAlamat: \n\nMohon konfirmasi ketersediaan, harga, dan ongkos kirim. Terima kasih 🙏`;
-  document.getElementById('checkoutBtn').href = waLink(getDefaultAdmin(), msg);
+  const groupList = Object.values(groups);
+
+  checkoutButtonsEl.innerHTML = '';
+  groupList.forEach((g, gi) => {
+    let msg = 'Halo KWT Sri Tanjung, saya ingin memesan:\n';
+    g.items.forEach((it, i) => {
+      msg += `${i+1}. ${it.p.name} x${it.qty} (Rp ${(it.p.price*it.qty).toLocaleString('id-ID')})\n`;
+    });
+    msg += `\nEstimasi total: Rp ${g.subtotal.toLocaleString('id-ID')}\n\nNama: \nAlamat: \n\nMohon konfirmasi ketersediaan, harga, dan ongkos kirim. Terima kasih 🙏`;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'checkout-group';
+    wrap.innerHTML = `
+      ${groupList.length > 1 ? `<div class="checkout-group-label"><span>Kirim ke ${g.admin.name}</span><strong>Rp ${g.subtotal.toLocaleString('id-ID')}</strong></div>` : ''}
+      <a href="${waLink(g.admin, msg)}" target="_blank" rel="noopener" class="btn btn-wa">💬 Checkout${groupList.length > 1 ? ` ke ${g.admin.name}` : ' via WhatsApp'}</a>`;
+    checkoutButtonsEl.appendChild(wrap);
+  });
 }
 
 document.body.addEventListener('click', e => {
@@ -1762,12 +1852,19 @@ document.getElementById('navWaBtnMobile').addEventListener('click', openAdminPic
    title   : judul besar di foto
    subtitle: kalimat pendek di bawah judul
    cta     : teks tombol, link: tujuan tombol (mis. '#produk')
+   logo    : isi true KHUSUS untuk gambar logo/transparan (PNG tanpa foto
+             latar). Ini mencegah logo tampak redup/samar karena biasanya
+             foto di banner ini otomatis dipotong penuh (crop) dan dikasih
+             lapisan gelap supaya judul terbaca — cocok untuk foto, tapi
+             bikin logo jadi kotor kalau dipaksakan. Kalau logo:true, gambar
+             ditampilkan utuh (tidak dipotong) di atas latar krem bersih,
+             dan judul/keterangan ditaruh di strip bawah yang ringan.
 
    Tambah/kurangi slide dengan menambah/menghapus baris di array ini. */
 const HERO_SLIDES = [
   {
     img: 'logo.png',
-    badge: null, badgeType: null,
+    logo: true,
     title: 'Selamat Datang',
     subtitle: 'di Padukuhan Ngramang.',
   },
@@ -1805,7 +1902,19 @@ let flashIndex = 0;
 let flashTimer;
 
 function renderHeroSlides(){
-  flashTrack.innerHTML = HERO_SLIDES.map(s => `
+  flashTrack.innerHTML = HERO_SLIDES.map(s => {
+    if(s.logo){
+      return `
+      <div class="flash-slide flash-slide-logo">
+        <img src="${s.img}" alt="${s.title}" loading="lazy"
+             onerror="this.parentElement.classList.add('no-photo'); this.remove();">
+        <div class="flash-caption-plain">
+          <h3>${s.title}</h3>
+          <p>${s.subtitle || ''}</p>
+        </div>
+      </div>`;
+    }
+    return `
     <div class="flash-slide">
       <img src="${s.img}" alt="${s.title}" loading="lazy"
            onerror="this.parentElement.classList.add('no-photo'); this.remove();">
@@ -1815,7 +1924,8 @@ function renderHeroSlides(){
         <p>${s.subtitle || ''}</p>
         ${s.cta ? `<a href="${s.link || '#produk'}" class="btn btn-primary btn-sm">${s.cta}</a>` : ''}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   flashDotsEl.innerHTML = '';
   HERO_SLIDES.forEach((_, i) => {
@@ -1863,6 +1973,24 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
 /* ================= Footer year ================= */
 document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ================= Proteksi ringan konten =================
+   PENTING UNTUK APTI (developer): ini HANYA penghalang ringan untuk
+   pengunjung awam, BUKAN proteksi keamanan sungguhan. Kode HTML/CSS/JS ini
+   tetap terkirim penuh ke browser siapa pun yang membuka halaman (begitu
+   cara kerja web) — pengunjung yang paham teknis tetap bisa membukanya
+   lewat DevTools browser meski 3 hal di bawah ini diblokir. Kalau nanti
+   Apti sendiri butuh buka DevTools untuk debugging, tinggal komentari/
+   hapus blok script ini sementara. */
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  const k = e.key;
+  const blocked =
+    k === 'F12' ||
+    (e.ctrlKey && e.shiftKey && ['I','J','C','i','j','c'].includes(k)) ||
+    (e.ctrlKey && ['U','u','S','s'].includes(k));
+  if(blocked) e.preventDefault();
+});
 </script>
 </body>
 </html>
