@@ -97,6 +97,16 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 
+/* ============ Proteksi ringan konten ============
+   Mencegah blok/seleksi teks secara sengaja lewat drag mouse, supaya
+   copy-paste isi halaman tidak semudah itu. Form/input tetap bisa
+   diketik & di-select normal (dikecualikan di bawah) supaya pengunjung
+   tetap bisa isi nama/alamat dengan nyaman. Catatan: ini hanya penghalang
+   ringan untuk pengunjung awam, bukan proteksi teknis penuh (lihat
+   penjelasan di komentar dekat script anti klik-kanan di bagian bawah). */
+body{ -webkit-user-select:none; -moz-user-select:none; user-select:none; }
+input, textarea, select{ -webkit-user-select:text; -moz-user-select:text; user-select:text; }
+
 body{
   font-family: var(--font-body);
   background: var(--cream);
@@ -1963,6 +1973,24 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
 /* ================= Footer year ================= */
 document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ================= Proteksi ringan konten =================
+   PENTING UNTUK APTI (developer): ini HANYA penghalang ringan untuk
+   pengunjung awam, BUKAN proteksi keamanan sungguhan. Kode HTML/CSS/JS ini
+   tetap terkirim penuh ke browser siapa pun yang membuka halaman (begitu
+   cara kerja web) — pengunjung yang paham teknis tetap bisa membukanya
+   lewat DevTools browser meski 3 hal di bawah ini diblokir. Kalau nanti
+   Apti sendiri butuh buka DevTools untuk debugging, tinggal komentari/
+   hapus blok script ini sementara. */
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  const k = e.key;
+  const blocked =
+    k === 'F12' ||
+    (e.ctrlKey && e.shiftKey && ['I','J','C','i','j','c'].includes(k)) ||
+    (e.ctrlKey && ['U','u','S','s'].includes(k));
+  if(blocked) e.preventDefault();
+});
 </script>
 </body>
 </html>
