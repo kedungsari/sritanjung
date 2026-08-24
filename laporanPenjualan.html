@@ -182,6 +182,32 @@ input, select{ font-family: inherit; }
   color: var(--ink-soft); font-size:0.85rem; text-align:center; padding:1rem;
 }
 
+/* Leaderboard Pembeli Teratas */
+.leaderboard-card{ margin-bottom:1.4rem; }
+.leaderboard-row{
+  display:flex; align-items:center; gap:0.9rem;
+  padding: 0.75rem 0.3rem;
+  border-bottom: 1px solid rgba(46,74,28,0.08);
+}
+.leaderboard-row:last-child{ border-bottom:none; }
+.leaderboard-rank{
+  width:32px; height:32px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:0.9rem;
+  background: var(--cream-deep); color: var(--green-deep);
+  flex-shrink:0;
+}
+.leaderboard-rank.top1{ background:#F3D488; }
+.leaderboard-rank.top2{ background:#E4E4E4; }
+.leaderboard-rank.top3{ background:#E4D3B8; }
+.leaderboard-info{ flex:1; min-width:0; }
+.leaderboard-name{ font-weight:600; font-size:0.92rem; color: var(--ink); }
+.leaderboard-sub{ font-size:0.78rem; color: var(--ink-soft); margin-top:0.1rem; }
+.leaderboard-bar-wrap{ height:5px; background: var(--cream-deep); border-radius:100px; margin-top:0.45rem; overflow:hidden; }
+.leaderboard-bar{ height:100%; background: linear-gradient(90deg, var(--green-mid), var(--green-deep)); border-radius:100px; }
+.leaderboard-value{ text-align:right; flex-shrink:0; }
+.leaderboard-omzet{ font-weight:700; color: var(--green-deep); font-size:0.92rem; white-space:nowrap; }
+
 /* Table */
 .table-card{}
 .table-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem; }
@@ -332,6 +358,10 @@ td.num{ text-align:right; font-variant-numeric: tabular-nums; }
             <option value="">Semua Admin/Kontak</option>
           </select>
         </div>
+        <div class="filter-field">
+          <label for="buyerFilter">Nama Pembeli</label>
+          <input type="text" id="buyerFilter" placeholder="Cari nama pembeli...">
+        </div>
       </div>
       <div class="filter-actions">
         <button class="btn btn-primary" id="applyFilterBtn">Terapkan Filter</button>
@@ -386,6 +416,19 @@ td.num{ text-align:right; font-variant-numeric: tabular-nums; }
           <canvas id="chartTerlaris"></canvas>
           <div class="chart-empty" id="chartTerlarisEmpty" style="display:none;">Belum ada data untuk ditampilkan.</div>
         </div>
+      </div>
+    </div>
+
+    <!-- Pembeli Teratas -->
+    <div class="card leaderboard-card">
+      <div class="table-header">
+        <h3>🏅 Pembeli Teratas</h3>
+        <span class="table-count" id="leaderboardCount">0 pembeli</span>
+      </div>
+      <div id="leaderboardList"></div>
+      <div class="empty-state" id="leaderboardEmpty">
+        <div class="emoji">🧍</div>
+        <p>Belum ada data pembeli pada rentang/filter ini.</p>
       </div>
     </div>
 
@@ -635,17 +678,20 @@ function applyFilter(){
   const dateFrom = document.getElementById('dateFrom').value; // 'YYYY-MM-DD' atau ''
   const dateTo = document.getElementById('dateTo').value;
   const adminSel = document.getElementById('adminFilter').value;
+  const buyerQuery = document.getElementById('buyerFilter').value.trim().toLowerCase();
 
   filteredData = allData.filter(item => {
     const itemDateStr = toLocalDateStr(new Date(item.tanggal));
     if(dateFrom && itemDateStr < dateFrom) return false;
     if(dateTo && itemDateStr > dateTo) return false;
     if(adminSel && item.namaAdmin !== adminSel) return false;
+    if(buyerQuery && !(item.buyerNama || '').toLowerCase().includes(buyerQuery)) return false;
     return true;
   });
 
   renderSummary(filteredData);
   renderCharts(filteredData);
+  renderLeaderboard(filteredData);
   renderTable(filteredData);
 }
 
@@ -653,10 +699,14 @@ document.getElementById('applyFilterBtn').addEventListener('click', () => {
   applyFilter();
   showToast(`Filter diterapkan — ${filteredData.length} baris ditemukan.`);
 });
+document.getElementById('buyerFilter').addEventListener('keydown', e => {
+  if(e.key === 'Enter') document.getElementById('applyFilterBtn').click();
+});
 document.getElementById('resetFilterBtn').addEventListener('click', () => {
   document.getElementById('dateFrom').value = '';
   document.getElementById('dateTo').value = '';
   document.getElementById('adminFilter').value = '';
+  document.getElementById('buyerFilter').value = '';
   applyFilter();
   showToast('Filter direset — menampilkan semua data.');
 });
@@ -759,6 +809,48 @@ function renderCharts(data){
       }
     });
   }
+}
+
+/* ================= Render: Pembeli Teratas ================= */
+function renderLeaderboard(data){
+  const list = document.getElementById('leaderboardList');
+  const empty = document.getElementById('leaderboardEmpty');
+  const countEl = document.getElementById('leaderboardCount');
+
+  const byBuyer = {};
+  data.forEach(d => {
+    const nama = (d.buyerNama || '').trim();
+    if(!nama || nama === '-') return; // lewati baris tanpa data pembeli (transaksi lama sebelum fitur ini ada)
+    if(!byBuyer[nama]) byBuyer[nama] = { nama, hp: '', total: 0, baris: 0 };
+    byBuyer[nama].total += (d.total || 0);
+    byBuyer[nama].baris += 1;
+    if(!byBuyer[nama].hp && d.buyerHp && d.buyerHp !== '-') byBuyer[nama].hp = d.buyerHp;
+  });
+
+  const top = Object.values(byBuyer).sort((a,b) => b.total - a.total).slice(0, 10);
+  countEl.textContent = `${Object.keys(byBuyer).length.toLocaleString('id-ID')} pembeli`;
+
+  if(!top.length){
+    list.innerHTML = '';
+    empty.classList.add('show');
+    return;
+  }
+  empty.classList.remove('show');
+
+  const maxTotal = top[0].total || 1;
+  const medals = ['🥇','🥈','🥉'];
+  list.innerHTML = top.map((b, i) => `
+    <div class="leaderboard-row">
+      <div class="leaderboard-rank ${i===0?'top1':i===1?'top2':i===2?'top3':''}">${medals[i] || (i+1)}</div>
+      <div class="leaderboard-info">
+        <div class="leaderboard-name">${b.nama}</div>
+        <div class="leaderboard-sub">${b.hp ? b.hp + ' · ' : ''}${b.baris.toLocaleString('id-ID')} transaksi</div>
+        <div class="leaderboard-bar-wrap"><div class="leaderboard-bar" style="width:${((b.total/maxTotal)*100).toFixed(0)}%"></div></div>
+      </div>
+      <div class="leaderboard-value">
+        <div class="leaderboard-omzet">${formatRupiah(b.total)}</div>
+      </div>
+    </div>`).join('');
 }
 
 /* ================= Render: Tabel ================= */
