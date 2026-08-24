@@ -1394,6 +1394,18 @@ h1,h2,h3,h4{
 </div>
 
 <script>
+/* ================= Pencatat Pesanan (Log Penjualan per Item) =================
+   CATATAN UNTUK ADMIN/DEVELOPER: Supaya penjualan per item bisa terpantau
+   di Google Sheets, buat backend Apps Script terpisah (lihat file Code.gs
+   yang disediakan bersama file ini), lalu tempel URL Web App hasil deploy-nya
+   di bawah ini (URL diakhiri "/exec").
+
+   Kalau dikosongkan / masih placeholder di bawah, fitur checkout WhatsApp
+   TETAP JALAN NORMAL seperti biasa — cuma pencatatannya yang dilewati diam-diam
+   (tidak akan muncul error apa pun ke pengunjung). Jadi aman ditempel kapan saja
+   setelah Code.gs selesai di-deploy, tanpa harus mengubah bagian lain file ini. */
+const ORDER_LOG_URL = 'PASTE_URL_WEB_APP_DISINI';
+
 /* ================= Data Admin (Multi-WA) =================
    CATATAN UNTUK ADMIN: Atur status "online" (true/false) di sini
    secara manual sesuai siapa yang sedang aktif membalas pesan. */
@@ -1422,6 +1434,32 @@ function resolveWaTarget(p){
     return { id:'custom-'+p.wa, name: p.waName || 'Kontak Produk Ini', wa: p.wa, online:true };
   }
   return getDefaultAdmin();
+}
+
+/* Kirim data pesanan (1 grup checkout) ke Google Sheets lewat Web App Apps
+   Script, supaya bisa dipantau penjualan per item. Dikirim di LATAR
+   BELAKANG (tidak menunggu/tidak menghalangi) saat tombol checkout diklik,
+   jadi pengunjung tetap langsung diarahkan ke WhatsApp seperti biasa —
+   gagal kirim log (mis. belum di-deploy, tidak ada internet) tidak akan
+   memunculkan error apa pun ke pengunjung. */
+function logOrderToSheet(group){
+  if(!ORDER_LOG_URL || ORDER_LOG_URL.indexOf('PASTE_URL_WEB_APP') !== -1) return; // belum di-deploy, lewati diam-diam
+  const payload = {
+    items: group.items.map(it => ({
+      name: it.p.name,
+      qty: it.qty,
+      unit: it.p.unit,
+      price: it.p.price,
+      subtotal: it.p.price * it.qty
+    })),
+    wa: group.admin.wa,
+    waName: group.admin.name
+  };
+  fetch(ORDER_LOG_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // hindari CORS preflight ke Apps Script
+    body: JSON.stringify(payload)
+  }).catch(() => { /* diamkan kalau gagal - jangan ganggu proses checkout WA */ });
 }
 
 /* ================= Data Produk =================
@@ -1458,7 +1496,7 @@ function resolveWaTarget(p){
    utama seperti biasa. Kalau isi keranjang berasal dari nomor WA berbeda-beda,
    tombol checkout otomatis dipecah per nomor tujuan (lihat bagian Cart Logic). */
 const PRODUCTS = [
-  { id:'p1', cat:'sayur', icon:'🥬', imgs:['produk-foto/bayam.jpg'], ['produk-foto/bayam2.jpg'], ['produk-foto/bayam3.jpg'], name:'Bayam Merah Segar', unit:'ikat', price:5000, desc:['Dipetik pagi hari dari pekarangan warga','Segar dan bebas pestisida kimia'], status:'baru' },
+  { id:'p1', cat:'sayur', icon:'🥬', imgs:['produk-foto/bayam.jpg'], name:'Bayam Merah Segar', unit:'ikat', price:5000, desc:['Dipetik pagi hari dari pekarangan warga','Segar dan bebas pestisida kimia'], status:'baru' },
   { id:'p2', cat:'sayur', icon:'🥦', imgs:['produk-foto/kangkung.jpg'], name:'Kangkung Segar', unit:'ikat', price:4000, desc:['Kangkung darat pilihan, renyah','Cocok untuk tumis sehari-hari'], status:null },
   { id:'p3', cat:'sayur', icon:'🌶️', imgs:['produk-foto/cabai.jpg'], name:'Cabai Rawit Segar', unit:'ons', price:8000, desc:['Cabai rawit hasil kebun sendiri','Tingkat kepedasan pas untuk sambal rumahan'], status:'promo', promoPrice:6500 },
   { id:'p4', cat:'sayur', icon:'🍆', imgs:['produk-foto/terong.jpg'], name:'Terong Ungu', unit:'kg', price:9000, desc:['Ukuran sedang, empuk saat diolah','Cocok jadi balado atau lalap'], status:null },
@@ -1471,7 +1509,7 @@ const PRODUCTS = [
   { id:'p11', cat:'olahan', icon:'🫙', imgs:['produk-foto/kunyit_asam.jpg'], name:'Jamu Kunyit Asam', unit:'botol 350ml', price:10000, desc:['Menyegarkan, resep turun-temurun','Cocok diminum setiap hari'], status:null },
   { id:'p12', cat:'olahan', icon:'🍯', imgs:['produk-foto/wedang_uwuh.jpg'], name:'Wedang Uwuh Instan', unit:'bungkus', price:13000, desc:['Rempah pilihan khas Jawa','Nikmat diseduh hangat'], status:null },
   { id:'p13', cat:'ikan', icon:'🐟', imgs:['produk-foto/lele.jpg'], name:'Ikan Lele', unit:'kg', price:25000, desc:['Ikan lele','Hasil budidaya'], status:null },
-  { id:'p14', cat:'ternak', icon:'🐐', imgs:['produk-foto/kambing.jpg'], ['produk-foto/kambing2.jpg'], ['produk-foto/kambing3.jpg'], name:'Kambing Jawa', unit:'ekor', price:3500000, desc:['Diternak oleh anggota KWT','Daging tebal, kering'], status:'baru' },
+  { id:'p14', cat:'ternak', icon:'🐐', imgs:['produk-foto/kambing.jpg'], name:'Kambing Jawa', unit:'ekor', price:3500000, desc:['Diternak oleh anggota KWT','Daging tebal, kering'], status:'baru' },
 ];
 
 const CAT_LABEL = { sayur:'Sayur & Kebun', olahan:'Olahan Pangan', ikan:'Perikanan', ternak:'Peternakan', kerajinan:'Kerajinan', lain:'Lain-lain' };
@@ -1661,6 +1699,7 @@ function updateCartUI(){
     wrap.innerHTML = `
       ${groupList.length > 1 ? `<div class="checkout-group-label"><span>Kirim ke ${g.admin.name}</span><strong>Rp ${g.subtotal.toLocaleString('id-ID')}</strong></div>` : ''}
       <a href="${waLink(g.admin, msg)}" target="_blank" rel="noopener" class="btn btn-wa">💬 Checkout${groupList.length > 1 ? ` ke ${g.admin.name}` : ' via WhatsApp'}</a>`;
+    wrap.querySelector('a').addEventListener('click', () => logOrderToSheet(g));
     checkoutButtonsEl.appendChild(wrap);
   });
 }
