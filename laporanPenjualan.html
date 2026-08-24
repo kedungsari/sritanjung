@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laporan Penjualan — KWT Sri Tanjung</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --cream: #F6F3E7;
+  --cream-deep: #ECE5CF;
+  --paper: #FFFFFF;
+  --ink: #202B1C;
+  --ink-soft: #55624C;
+  --green-deep: #2E4A1C;
+  --green: #6E8F42;
+  --green-mid: #86A657;
+  --green-light: #C7DBA3;
+  --gold: #E3A93C;
+  --gold-soft: #F3D488;
+  --soil: #8B6B45;
+  --soil-light: #E4D3B8;
+  --red: #B5493F;
+  --shadow: 0 18px 40px -18px rgba(46,74,28,0.28);
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Work Sans', 'Segoe UI', sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family: var(--font-body);
+  background: var(--cream);
+  color: var(--ink);
+  line-height:1.6;
+}
+h1,h2,h3{ font-family: var(--font-display); color: var(--green-deep); }
+button{ font-family: inherit; cursor:pointer; }
+input, select{ font-family: inherit; }
+
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding: 11px 20px;
+  border-radius: 100px;
+  border:none;
+  font-weight:600;
+  font-size:0.9rem;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.btn-primary{ background: var(--green-deep); color:#fff; }
+.btn-primary:hover{ background:#243c16; transform: translateY(-1px); }
+.btn-outline{ background: transparent; color: var(--green-deep); border:1.5px solid var(--green-deep); }
+.btn-outline:hover{ background: var(--green-deep); color:#fff; }
+.btn-danger-outline{ background:transparent; color:var(--red); border:1.5px solid rgba(181,73,63,0.4); }
+.btn-danger-outline:hover{ background: var(--red); color:#fff; border-color:var(--red); }
+.btn:disabled{ opacity:0.55; cursor:not-allowed; transform:none !important; }
+
+/* ============ Login Screen ============ */
+.login-screen{
+  min-height:100vh;
+  display:flex; align-items:center; justify-content:center;
+  padding: 1.5rem;
+  background: radial-gradient(circle at 20% 20%, rgba(110,143,66,0.16), transparent 55%), var(--cream);
+}
+.login-card{
+  background: var(--paper);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 2.6rem 2.2rem;
+  width: min(400px, 100%);
+  text-align:center;
+}
+.login-icon{
+  width:64px; height:64px; margin:0 auto 1.2rem;
+  border-radius:50%;
+  background: linear-gradient(135deg, var(--green-light), var(--green-mid));
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.8rem;
+}
+.login-card h1{ font-size:1.5rem; margin-bottom:0.3rem; }
+.login-card p.sub{ color: var(--ink-soft); font-size:0.9rem; margin-bottom:1.8rem; }
+.login-field{ text-align:left; margin-bottom:1.4rem; }
+.login-field label{ display:block; font-size:0.82rem; font-weight:600; color: var(--ink-soft); margin-bottom:0.4rem; }
+.login-field input{
+  width:100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid rgba(46,74,28,0.15);
+  font-size:0.95rem;
+  background: var(--cream);
+  color: var(--ink);
+}
+.login-field input:focus{ outline:none; border-color: var(--green); background:#fff; }
+.login-card .btn{ width:100%; padding:13px; font-size:0.95rem; }
+.login-error{
+  display:none;
+  margin-top:1rem;
+  padding: 10px 14px;
+  background: rgba(181,73,63,0.1);
+  color: var(--red);
+  border-radius: var(--radius-sm);
+  font-size:0.85rem;
+  text-align:left;
+}
+.login-error.show{ display:block; }
+.login-hint{ margin-top:1.4rem; font-size:0.78rem; color: var(--ink-soft); }
+
+/* ============ Dashboard ============ */
+.dashboard{ display:none; min-height:100vh; }
+.dashboard.show{ display:block; }
+.dash-shell{ max-width:1180px; margin:0 auto; padding: 1.6rem 1.4rem 4rem; }
+
+.dash-header{
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+  gap:1rem;
+  margin-bottom:1.6rem;
+  padding-bottom:1.3rem;
+  border-bottom: 1px solid rgba(46,74,28,0.1);
+}
+.dash-title h1{ font-size:1.5rem; margin-bottom:0.2rem; }
+.dash-title p{ color: var(--ink-soft); font-size:0.88rem; }
+.dash-actions{ display:flex; gap:0.6rem; flex-wrap:wrap; }
+.dash-actions .btn{ padding:9px 16px; font-size:0.85rem; }
+
+.card{
+  background: var(--paper);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  padding: 1.4rem 1.5rem;
+}
+
+/* Filter */
+.filter-card{ margin-bottom:1.4rem; }
+.filter-row{ display:grid; grid-template-columns: repeat(auto-fit, minmax(170px,1fr)); gap:1rem; margin-bottom:1.1rem; }
+.filter-field label{ display:block; font-size:0.78rem; font-weight:600; color: var(--ink-soft); margin-bottom:0.35rem; }
+.filter-field input, .filter-field select{
+  width:100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid rgba(46,74,28,0.15);
+  font-size:0.88rem;
+  background: var(--cream);
+  color: var(--ink);
+}
+.filter-field input:focus, .filter-field select:focus{ outline:none; border-color: var(--green); background:#fff; }
+.filter-actions{ display:flex; gap:0.7rem; flex-wrap:wrap; }
+.filter-actions .btn{ padding:9px 18px; font-size:0.85rem; }
+
+/* Summary cards */
+.summary-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px,1fr));
+  gap:1rem;
+  margin-bottom:1.4rem;
+}
+.summary-card{ display:flex; align-items:center; gap:0.9rem; }
+.summary-icon{
+  width:46px; height:46px; flex-shrink:0;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.3rem;
+  background: var(--green-light);
+}
+.summary-card:nth-child(2) .summary-icon{ background: var(--gold-soft); }
+.summary-card:nth-child(3) .summary-icon{ background: var(--soil-light); }
+.summary-card:nth-child(4) .summary-icon{ background: var(--cream-deep); }
+.summary-label{ font-size:0.76rem; color: var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:0.03em; }
+.summary-value{ font-size:1.18rem; font-weight:700; color: var(--ink); line-height:1.3; margin-top:0.1rem; }
+.summary-value small{ font-size:0.7rem; font-weight:500; color: var(--ink-soft); display:block; }
+
+/* Charts */
+.charts-grid{ display:grid; grid-template-columns: 1.3fr 1fr; gap:1.2rem; margin-bottom:1.4rem; }
+.chart-card h3{ font-size:1rem; margin-bottom:1rem; }
+.chart-card .chart-wrap{ position:relative; height:280px; }
+.chart-empty{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  color: var(--ink-soft); font-size:0.85rem; text-align:center; padding:1rem;
+}
+
+/* Table */
+.table-card{}
+.table-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem; }
+.table-header h3{ font-size:1rem; }
+.table-count{ font-size:0.8rem; color: var(--ink-soft); background: var(--cream); padding:4px 12px; border-radius:100px; }
+.table-scroll{ overflow-x:auto; }
+table{ width:100%; border-collapse:collapse; font-size:0.85rem; min-width:720px; }
+thead th{
+  text-align:left; padding:10px 12px;
+  background: var(--green-deep); color:#fff;
+  font-weight:600; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.03em;
+  position:sticky; top:0;
+}
+thead th:first-child{ border-radius:8px 0 0 0; }
+thead th:last-child{ border-radius:0 8px 0 0; }
+tbody td{ padding:10px 12px; border-bottom:1px solid rgba(46,74,28,0.08); }
+tbody tr:nth-child(even){ background: rgba(199,219,163,0.12); }
+tbody tr:hover{ background: rgba(199,219,163,0.28); }
+td.num{ text-align:right; font-variant-numeric: tabular-nums; }
+.empty-state{ display:none; text-align:center; padding:2.5rem 1rem; color: var(--ink-soft); }
+.empty-state .emoji{ font-size:2.4rem; margin-bottom:0.6rem; }
+.empty-state.show{ display:block; }
+.table-scroll.hide, table.hide{ display:none; }
+
+/* Loading overlay */
+.loading-overlay{
+  position:fixed; inset:0;
+  background: rgba(246,243,231,0.92);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:1rem; z-index:2000;
+}
+.loading-overlay.hide{ display:none; }
+.spinner{
+  width:38px; height:38px;
+  border: 4px solid var(--green-light);
+  border-top-color: var(--green-deep);
+  border-radius:50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin{ to{ transform: rotate(360deg); } }
+.loading-overlay p{ color: var(--green-deep); font-weight:600; font-size:0.9rem; }
+
+/* Toast */
+.toast{
+  position:fixed; bottom:24px; right:24px;
+  background: var(--green-deep); color:#fff;
+  padding:13px 22px; border-radius:100px;
+  font-size:0.88rem; font-weight:600;
+  display:flex; align-items:center; gap:9px;
+  box-shadow: 0 14px 30px -10px rgba(32,43,28,0.45);
+  opacity:0; transform: translateY(10px) scale(0.97);
+  transition: opacity .3s ease, transform .3s ease;
+  z-index:2200; pointer-events:none;
+  max-width: calc(100vw - 48px);
+}
+.toast.show{ opacity:1; transform: translateY(0) scale(1); }
+.toast.error{ background: var(--red); }
+
+/* Confirm modal */
+.confirm-overlay{
+  position:fixed; inset:0;
+  background: rgba(20,28,15,0.55);
+  backdrop-filter: blur(3px);
+  z-index:2300; opacity:0; pointer-events:none;
+  transition: opacity .25s ease;
+}
+.confirm-overlay.open{ opacity:1; pointer-events:auto; }
+.confirm-modal{
+  position:fixed; top:50%; left:50%;
+  transform: translate(-50%,-50%) scale(0.94);
+  background: var(--paper);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 30px 60px -20px rgba(20,28,15,0.45);
+  padding: 2rem 1.8rem 1.7rem;
+  width: min(360px, calc(100vw - 48px));
+  text-align:center;
+  z-index:2301; opacity:0; pointer-events:none;
+  transition: opacity .25s ease, transform .25s ease;
+}
+.confirm-modal.open{ opacity:1; pointer-events:auto; transform: translate(-50%,-50%) scale(1); }
+.confirm-icon{
+  width:56px; height:56px; margin:0 auto 1rem;
+  border-radius:50%;
+  background: var(--cream-deep);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.6rem;
+}
+.confirm-modal h4{ font-size:1.2rem; margin-bottom:0.5rem; }
+.confirm-modal p{ color: var(--ink-soft); font-size:0.9rem; margin-bottom:1.5rem; line-height:1.55; }
+.confirm-actions{ display:flex; gap:0.7rem; }
+.confirm-actions .btn{ flex:1; justify-content:center; }
+
+@media (max-width: 860px){
+  .charts-grid{ grid-template-columns: 1fr; }
+}
+@media (max-width: 560px){
+  .dash-header{ flex-direction:column; align-items:flex-start; }
+  .login-card{ padding:2rem 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ Login Screen ============ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-icon">🔒</div>
+    <h1>Laporan Penjualan</h1>
+    <p class="sub">KWT Sri Tanjung — Padukuhan Ngramang</p>
+    <div class="login-field">
+      <label for="tokenInput">Kata Sandi Admin</label>
+      <input type="password" id="tokenInput" placeholder="Masukkan kata sandi" autocomplete="off">
+    </div>
+    <button class="btn btn-primary" id="loginBtn">Masuk</button>
+    <div class="login-error" id="loginError"></div>
+    <p class="login-hint">Halaman ini khusus pengurus KWT. Hubungi admin sistem kalau lupa kata sandi.</p>
+  </div>
+</div>
+
+<!-- ============ Dashboard ============ -->
+<div class="dashboard" id="dashboardScreen">
+  <div class="dash-shell">
+    <div class="dash-header">
+      <div class="dash-title">
+        <h1>📊 Laporan Penjualan</h1>
+        <p>KWT Sri Tanjung — Padukuhan Ngramang</p>
+      </div>
+      <div class="dash-actions">
+        <button class="btn btn-outline" id="reloadBtn">🔄 Muat Ulang</button>
+        <button class="btn btn-danger-outline" id="logoutBtn">Keluar</button>
+      </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="card filter-card">
+      <div class="filter-row">
+        <div class="filter-field">
+          <label for="dateFrom">Dari Tanggal</label>
+          <input type="date" id="dateFrom">
+        </div>
+        <div class="filter-field">
+          <label for="dateTo">Sampai Tanggal</label>
+          <input type="date" id="dateTo">
+        </div>
+        <div class="filter-field">
+          <label for="adminFilter">Nama Admin/Kontak</label>
+          <select id="adminFilter">
+            <option value="">Semua Admin/Kontak</option>
+          </select>
+        </div>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary" id="applyFilterBtn">Terapkan Filter</button>
+        <button class="btn btn-outline" id="resetFilterBtn">Reset</button>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary-grid">
+      <div class="card summary-card">
+        <div class="summary-icon">🧾</div>
+        <div>
+          <div class="summary-label">Baris Transaksi</div>
+          <div class="summary-value" id="sumTransaksi">0</div>
+        </div>
+      </div>
+      <div class="card summary-card">
+        <div class="summary-icon">📦</div>
+        <div>
+          <div class="summary-label">Total Qty Terjual</div>
+          <div class="summary-value" id="sumQty">0</div>
+        </div>
+      </div>
+      <div class="card summary-card">
+        <div class="summary-icon">💰</div>
+        <div>
+          <div class="summary-label">Total Omzet</div>
+          <div class="summary-value" id="sumOmzet">Rp 0</div>
+        </div>
+      </div>
+      <div class="card summary-card">
+        <div class="summary-icon">🏆</div>
+        <div>
+          <div class="summary-label">Produk Terlaris</div>
+          <div class="summary-value" id="sumTerlaris">-</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <div class="card chart-card">
+        <h3>Tren Omzet Harian</h3>
+        <div class="chart-wrap">
+          <canvas id="chartTren"></canvas>
+          <div class="chart-empty" id="chartTrenEmpty" style="display:none;">Belum ada data untuk ditampilkan.</div>
+        </div>
+      </div>
+      <div class="card chart-card">
+        <h3>Produk Terlaris (Top 8)</h3>
+        <div class="chart-wrap">
+          <canvas id="chartTerlaris"></canvas>
+          <div class="chart-empty" id="chartTerlarisEmpty" style="display:none;">Belum ada data untuk ditampilkan.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card table-card">
+      <div class="table-header">
+        <h3>Detail Transaksi</h3>
+        <span class="table-count" id="tableCount">0 baris</span>
+      </div>
+      <div class="table-scroll" id="tableScroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Nama Item</th>
+              <th>Jumlah</th>
+              <th>Satuan</th>
+              <th>Harga Satuan</th>
+              <th>Total</th>
+              <th>No WA Tujuan</th>
+              <th>Admin/Kontak</th>
+            </tr>
+          </thead>
+          <tbody id="dataTableBody"></tbody>
+        </table>
+      </div>
+      <div class="empty-state" id="emptyState">
+        <div class="emoji">🗒️</div>
+        <p>Tidak ada transaksi pada rentang tanggal / filter ini.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Loading Overlay ============ -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <p id="loadingText">Memuat data...</p>
+</div>
+
+<!-- ============ Toast ============ -->
+<div class="toast" id="toast"></div>
+
+<!-- ============ Confirm Modal ============ -->
+<div class="confirm-overlay" id="confirmOverlay"></div>
+<div class="confirm-modal" id="confirmModal" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="confirm-icon" id="confirmIcon">🚪</div>
+  <h4 id="confirmTitle">Keluar dari Laporan?</h4>
+  <p id="confirmMessage">Anda perlu memasukkan kata sandi lagi untuk membuka laporan ini.</p>
+  <div class="confirm-actions">
+    <button type="button" class="btn btn-outline" id="confirmCancelBtn">Batal</button>
+    <button type="button" class="btn btn-primary" id="confirmOkBtn">Ya, Keluar</button>
+  </div>
+</div>
+
+<script>
+/* ================= Konfigurasi =================
+   CATATAN UNTUK ADMIN: tempel URL Web App Apps Script yang sama seperti
+   ORDER_LOG_URL di index.html (harus proyek Code.gs yang sama, karena
+   laporan ini membaca dari Sheet yang sama). Lihat komentar "CARA DEPLOY"
+   di paling atas file Code.gs untuk cara mengatur kata sandi (ADMIN_TOKEN). */
+const API_URL = 'PASTE_URL_WEB_APP_DISINI';
+
+/* ================= State ================= */
+let allData = [];       // seluruh data dari server (belum difilter)
+let filteredData = [];  // data setelah filter diterapkan (yang ditampilkan)
+let authToken = null;
+let chartTren = null;
+let chartTerlaris = null;
+
+/* ================= Util ================= */
+function formatRupiah(n){
+  return 'Rp ' + (Number(n)||0).toLocaleString('id-ID');
+}
+function toLocalDateStr(d){
+  const yy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  return `${yy}-${mm}-${dd}`;
+}
+function formatTanggalTampil(iso){
+  const d = new Date(iso);
+  if(isNaN(d.getTime())) return String(iso);
+  return d.toLocaleString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+/* ================= Toast ================= */
+let toastTimer;
+function showToast(text, type){
+  const toast = document.getElementById('toast');
+  toast.textContent = text;
+  toast.className = 'toast show' + (type === 'error' ? ' error' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+/* ================= Confirm Modal ================= */
+const confirmOverlay = document.getElementById('confirmOverlay');
+const confirmModal = document.getElementById('confirmModal');
+function showConfirm({ icon = '⚠️', title = 'Konfirmasi', message = '', confirmText = 'Ya', cancelText = 'Batal' } = {}){
+  return new Promise(resolve => {
+    document.getElementById('confirmIcon').textContent = icon;
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+    const okBtn = document.getElementById('confirmOkBtn');
+    const cancelBtn = document.getElementById('confirmCancelBtn');
+    okBtn.textContent = confirmText;
+    cancelBtn.textContent = cancelText;
+
+    function close(result){
+      confirmOverlay.classList.remove('open');
+      confirmModal.classList.remove('open');
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      confirmOverlay.removeEventListener('click', onCancel);
+      document.removeEventListener('keydown', onEsc);
+      resolve(result);
+    }
+    function onOk(){ close(true); }
+    function onCancel(){ close(false); }
+    function onEsc(ev){ if(ev.key === 'Escape') onCancel(); }
+
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    confirmOverlay.addEventListener('click', onCancel);
+    document.addEventListener('keydown', onEsc);
+    confirmOverlay.classList.add('open');
+    confirmModal.classList.add('open');
+  });
+}
+
+/* ================= Loading Overlay ================= */
+function showLoading(text){
+  document.getElementById('loadingText').textContent = text || 'Memuat data...';
+  document.getElementById('loadingOverlay').classList.remove('hide');
+}
+function hideLoading(){
+  document.getElementById('loadingOverlay').classList.add('hide');
+}
+
+/* ================= Ambil Data dari Server ================= */
+async function fetchData(token){
+  if(!API_URL || API_URL.indexOf('PASTE_URL_WEB_APP') !== -1){
+    throw new Error('API_URL belum diatur. Tempel URL Web App Apps Script di baris const API_URL pada file ini.');
+  }
+  const res = await fetch(`${API_URL}?action=laporan&token=${encodeURIComponent(token)}`);
+  const json = await res.json();
+  if(!json.ok) throw new Error(json.error || 'Gagal memuat data laporan.');
+  return json.data || [];
+}
+
+/* ================= Login ================= */
+async function doLogin(token, { silent } = {}){
+  const errBox = document.getElementById('loginError');
+  errBox.classList.remove('show');
+  if(!silent) showLoading('Memeriksa kata sandi...');
+  try{
+    const data = await fetchData(token);
+    authToken = token;
+    allData = data;
+    sessionStorage.setItem('laporan_token', token);
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboardScreen').classList.add('show');
+    populateAdminFilter(allData);
+    applyFilter();
+    if(!silent) showToast(`Berhasil masuk. ${allData.length} baris transaksi dimuat 👍`);
+  } catch(err){
+    sessionStorage.removeItem('laporan_token');
+    if(silent){
+      // auto-login diam-diam gagal (mis. token lama sudah tidak valid) -> tampilkan layar login biasa
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('dashboardScreen').classList.remove('show');
+    } else {
+      errBox.textContent = err.message;
+      errBox.classList.add('show');
+    }
+  } finally {
+    hideLoading();
+  }
+}
+
+document.getElementById('loginBtn').addEventListener('click', () => {
+  const token = document.getElementById('tokenInput').value.trim();
+  if(!token){
+    const errBox = document.getElementById('loginError');
+    errBox.textContent = 'Kata sandi wajib diisi.';
+    errBox.classList.add('show');
+    return;
+  }
+  doLogin(token);
+});
+document.getElementById('tokenInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') document.getElementById('loginBtn').click();
+});
+
+/* ================= Logout ================= */
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  showConfirm({
+    icon: '🚪',
+    title: 'Keluar dari Laporan?',
+    message: 'Anda perlu memasukkan kata sandi lagi untuk membuka laporan ini.',
+    confirmText: 'Ya, Keluar',
+    cancelText: 'Batal'
+  }).then(ok => {
+    if(!ok) return;
+    sessionStorage.removeItem('laporan_token');
+    authToken = null;
+    allData = [];
+    filteredData = [];
+    document.getElementById('tokenInput').value = '';
+    document.getElementById('dashboardScreen').classList.remove('show');
+    document.getElementById('loginScreen').style.display = 'flex';
+    showToast('Anda sudah keluar.');
+  });
+});
+
+/* ================= Muat Ulang ================= */
+document.getElementById('reloadBtn').addEventListener('click', async () => {
+  if(!authToken) return;
+  showLoading('Memuat ulang data...');
+  try{
+    allData = await fetchData(authToken);
+    populateAdminFilter(allData);
+    applyFilter();
+    showToast(`Data diperbarui. ${allData.length} baris transaksi.`);
+  } catch(err){
+    showToast(err.message, 'error');
+  } finally {
+    hideLoading();
+  }
+});
+
+/* ================= Filter ================= */
+function populateAdminFilter(data){
+  const select = document.getElementById('adminFilter');
+  const current = select.value;
+  const names = Array.from(new Set(data.map(d => d.namaAdmin).filter(Boolean))).sort();
+  select.innerHTML = '<option value="">Semua Admin/Kontak</option>' +
+    names.map(n => `<option value="${n}">${n}</option>`).join('');
+  if(names.includes(current)) select.value = current;
+}
+
+function applyFilter(){
+  const dateFrom = document.getElementById('dateFrom').value; // 'YYYY-MM-DD' atau ''
+  const dateTo = document.getElementById('dateTo').value;
+  const adminSel = document.getElementById('adminFilter').value;
+
+  filteredData = allData.filter(item => {
+    const itemDateStr = toLocalDateStr(new Date(item.tanggal));
+    if(dateFrom && itemDateStr < dateFrom) return false;
+    if(dateTo && itemDateStr > dateTo) return false;
+    if(adminSel && item.namaAdmin !== adminSel) return false;
+    return true;
+  });
+
+  renderSummary(filteredData);
+  renderCharts(filteredData);
+  renderTable(filteredData);
+}
+
+document.getElementById('applyFilterBtn').addEventListener('click', () => {
+  applyFilter();
+  showToast(`Filter diterapkan — ${filteredData.length} baris ditemukan.`);
+});
+document.getElementById('resetFilterBtn').addEventListener('click', () => {
+  document.getElementById('dateFrom').value = '';
+  document.getElementById('dateTo').value = '';
+  document.getElementById('adminFilter').value = '';
+  applyFilter();
+  showToast('Filter direset — menampilkan semua data.');
+});
+
+/* ================= Render: Ringkasan ================= */
+function renderSummary(data){
+  const totalBaris = data.length;
+  const totalQty = data.reduce((s,d) => s + (d.jumlah||0), 0);
+  const totalOmzet = data.reduce((s,d) => s + (d.total||0), 0);
+
+  const qtyPerProduk = {};
+  data.forEach(d => { qtyPerProduk[d.nama] = (qtyPerProduk[d.nama]||0) + (d.jumlah||0); });
+  let terlaris = '-';
+  let terlarisQty = 0;
+  Object.entries(qtyPerProduk).forEach(([nama, qty]) => {
+    if(qty > terlarisQty){ terlarisQty = qty; terlaris = nama; }
+  });
+
+  document.getElementById('sumTransaksi').textContent = totalBaris.toLocaleString('id-ID');
+  document.getElementById('sumQty').textContent = totalQty.toLocaleString('id-ID');
+  document.getElementById('sumOmzet').textContent = formatRupiah(totalOmzet);
+  document.getElementById('sumTerlaris').innerHTML = terlaris === '-'
+    ? '-'
+    : `${terlaris}<small>${terlarisQty.toLocaleString('id-ID')} terjual</small>`;
+}
+
+/* ================= Render: Grafik ================= */
+function renderCharts(data){
+  // --- Tren Omzet Harian ---
+  const omzetPerHari = {};
+  data.forEach(d => {
+    const key = toLocalDateStr(new Date(d.tanggal));
+    omzetPerHari[key] = (omzetPerHari[key]||0) + (d.total||0);
+  });
+  const tanggalUrut = Object.keys(omzetPerHari).sort();
+  const labelTren = tanggalUrut.map(t => {
+    const [y,m,dd] = t.split('-');
+    return `${dd}/${m}`;
+  });
+  const dataTren = tanggalUrut.map(t => omzetPerHari[t]);
+
+  const trenEmpty = document.getElementById('chartTrenEmpty');
+  trenEmpty.style.display = tanggalUrut.length ? 'none' : 'flex';
+  if(chartTren) chartTren.destroy();
+  if(tanggalUrut.length){
+    chartTren = new Chart(document.getElementById('chartTren'), {
+      type: 'line',
+      data: {
+        labels: labelTren,
+        datasets: [{
+          label: 'Omzet',
+          data: dataTren,
+          borderColor: '#2E4A1C',
+          backgroundColor: 'rgba(110,143,66,0.18)',
+          fill: true,
+          tension: 0.3,
+          pointBackgroundColor: '#2E4A1C',
+          pointRadius: 3
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => formatRupiah(ctx.parsed.y) } }
+        },
+        scales: {
+          y: { ticks: { callback: v => 'Rp ' + (v/1000).toLocaleString('id-ID') + 'rb' } }
+        }
+      }
+    });
+  }
+
+  // --- Produk Terlaris ---
+  const qtyPerProduk = {};
+  data.forEach(d => { qtyPerProduk[d.nama] = (qtyPerProduk[d.nama]||0) + (d.jumlah||0); });
+  const top = Object.entries(qtyPerProduk).sort((a,b) => b[1]-a[1]).slice(0,8);
+
+  const terlarisEmpty = document.getElementById('chartTerlarisEmpty');
+  terlarisEmpty.style.display = top.length ? 'none' : 'flex';
+  if(chartTerlaris) chartTerlaris.destroy();
+  if(top.length){
+    const palette = ['#2E4A1C','#6E8F42','#86A657','#E3A93C','#8B6B45','#C7DBA3','#F3D488','#E4D3B8'];
+    chartTerlaris = new Chart(document.getElementById('chartTerlaris'), {
+      type: 'bar',
+      data: {
+        labels: top.map(t => t[0]),
+        datasets: [{
+          label: 'Qty Terjual',
+          data: top.map(t => t[1]),
+          backgroundColor: top.map((_,i) => palette[i % palette.length]),
+          borderRadius: 6
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true } }
+      }
+    });
+  }
+}
+
+/* ================= Render: Tabel ================= */
+function renderTable(data){
+  const tbody = document.getElementById('dataTableBody');
+  const emptyState = document.getElementById('emptyState');
+  const tableScroll = document.getElementById('tableScroll');
+  document.getElementById('tableCount').textContent = `${data.length.toLocaleString('id-ID')} baris`;
+
+  if(!data.length){
+    tbody.innerHTML = '';
+    emptyState.classList.add('show');
+    tableScroll.classList.add('hide');
+    return;
+  }
+  emptyState.classList.remove('show');
+  tableScroll.classList.remove('hide');
+
+  const sorted = [...data].sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+  tbody.innerHTML = sorted.map(d => `
+    <tr>
+      <td>${formatTanggalTampil(d.tanggal)}</td>
+      <td>${d.nama}</td>
+      <td class="num">${(d.jumlah||0).toLocaleString('id-ID')}</td>
+      <td>${d.satuan||'-'}</td>
+      <td class="num">${formatRupiah(d.harga)}</td>
+      <td class="num">${formatRupiah(d.total)}</td>
+      <td>${d.noWa||'-'}</td>
+      <td>${d.namaAdmin||'-'}</td>
+    </tr>`).join('');
+}
+
+/* ================= Init ================= */
+(function init(){
+  const savedToken = sessionStorage.getItem('laporan_token');
+  if(savedToken){
+    document.getElementById('loginScreen').style.display = 'none';
+    showLoading('Memuat sesi sebelumnya...');
+    doLogin(savedToken, { silent: true });
+  } else {
+    hideLoading();
+  }
+})();
+</script>
+</body>
+</html>
