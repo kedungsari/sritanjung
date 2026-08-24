@@ -1746,12 +1746,8 @@ function updateCartUI(){
       <button type="button" class="btn btn-wa js-checkout-btn">💬 Checkout${groupList.length > 1 ? ` ke ${g.admin.name}` : ' via WhatsApp'}</button>`;
 
     wrap.querySelector('.js-checkout-btn').addEventListener('click', async () => {
-      // Buka tab kosong DULU secara langsung (synchronous) di dalam klik
-      // pengguna, supaya tidak diblokir popup blocker browser saat nanti
-      // URL-nya diisi setelah form pembeli selesai diisi (proses async).
-      const winRef = window.open('', '_blank');
       const buyer = await showBuyerForm();
-      if(!buyer){ if(winRef) winRef.close(); return; } // pembeli membatalkan isian data
+      if(!buyer) return; // pembeli membatalkan isian data
 
       let msg = 'Halo KWT Sri Tanjung, saya ingin memesan:\n';
       g.items.forEach((it, i) => {
@@ -1760,9 +1756,7 @@ function updateCartUI(){
       msg += `\nEstimasi total: Rp ${g.subtotal.toLocaleString('id-ID')}\n\nNama: ${buyer.nama}\nAlamat: ${buyer.alamat || '-'}\n\nMohon konfirmasi ketersediaan, harga, dan ongkos kirim. Terima kasih 🙏`;
 
       logOrderToSheet(g, buyer);
-      const url = waLink(g.admin, msg);
-      if(winRef) winRef.location.href = url;
-      else window.open(url, '_blank', 'noopener'); // fallback kalau tab kosong tadi gagal dibuka
+      window.open(waLink(g.admin, msg), '_blank', 'noopener');
     });
     checkoutButtonsEl.appendChild(wrap);
   });
