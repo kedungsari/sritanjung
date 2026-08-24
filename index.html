@@ -1452,7 +1452,7 @@ h1,h2,h3,h4{
    TETAP JALAN NORMAL seperti biasa — cuma pencatatannya yang dilewati diam-diam
    (tidak akan muncul error apa pun ke pengunjung). Jadi aman ditempel kapan saja
    setelah Code.gs selesai di-deploy, tanpa harus mengubah bagian lain file ini. */
-const ORDER_LOG_URL = 'https://script.google.com/macros/s/AKfycbxfc0Og5_KD46ddg5xE2LBX20Ymwn70h83_-wPNRn2qUd7F4NDYiQn0m0xINInSsC8/exec';
+const ORDER_LOG_URL = 'https://script.google.com/macros/s/AKfycbxfc0Og5_KD46ddg5xE2LBX20Ymwn70h83_-wPNRn2qUd7F4NDYiQn0m0xINInSsC8/exec'
 
 /* ================= Data Admin (Multi-WA) =================
    CATATAN UNTUK ADMIN: Atur status "online" (true/false) di sini
@@ -1757,6 +1757,14 @@ function updateCartUI(){
 
       logOrderToSheet(g, buyer);
       window.open(waLink(g.admin, msg), '_blank', 'noopener');
+
+      // Otomatis kosongkan produk yang barusan di-checkout dari keranjang.
+      // Cukup hapus item milik grup ini saja (bukan seluruh keranjang),
+      // supaya aman kalau keranjang berisi campuran produk dari nomor WA
+      // berbeda dan baru sebagian yang di-checkout.
+      g.items.forEach(it => { delete cart[it.p.id]; });
+      saveCart();
+      showToast('Pesanan terkirim, keranjang dikosongkan 🛒');
     });
     checkoutButtonsEl.appendChild(wrap);
   });
