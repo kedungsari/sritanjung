@@ -902,6 +902,8 @@ h1,h2,h3,h4{
 .footer-links a{ text-decoration:none; color: rgba(246,243,231,0.75); font-size:0.9rem; }
 .footer-links a:hover{ color: var(--gold); }
 .footer-bottom{ text-align:center; font-size:0.82rem; color: rgba(246,243,231,0.55); }
+.footer-admin-link{ color: rgba(246,243,231,0.4); text-decoration:none; }
+.footer-admin-link:hover{ color: rgba(246,243,231,0.75); text-decoration:underline; }
 
 /* ============ Floating WhatsApp ============ */
 .wa-float{
@@ -1048,6 +1050,27 @@ h1,h2,h3,h4{
 .confirm-modal p{ color: var(--ink-soft); font-size:0.92rem; margin-bottom:1.5rem; line-height:1.55; }
 .confirm-actions{ display:flex; gap:0.7rem; }
 .confirm-actions .btn{ flex:1; justify-content:center; }
+
+/* ============ Buyer Form Modal ============ */
+.buyer-modal{ width: min(400px, calc(100vw - 48px)); text-align:left; }
+.buyer-modal h4{ text-align:center; }
+.buyer-intro{ text-align:center; color: var(--ink-soft); font-size:0.86rem; margin-bottom:1.3rem; line-height:1.5; }
+.buyer-field{ margin-bottom:1rem; }
+.buyer-field label{ display:block; font-size:0.8rem; font-weight:600; color: var(--ink-soft); margin-bottom:0.35rem; }
+.buyer-field input, .buyer-field textarea{
+  width:100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid rgba(46,74,28,0.15);
+  font-size:0.9rem;
+  font-family: inherit;
+  background: var(--cream);
+  color: var(--ink);
+  resize: vertical;
+}
+.buyer-field input:focus, .buyer-field textarea:focus{ outline:none; border-color: var(--green); background:#fff; }
+.buyer-error{ display:none; color:#B5493F; font-size:0.82rem; margin-bottom:0.9rem; }
+.buyer-error.show{ display:block; }
 
 /* ============ Responsive ============ */
 @media (max-width: 960px){
@@ -1337,7 +1360,7 @@ h1,h2,h3,h4{
         </div>
       </div>
     </div>
-    <p class="footer-bottom">&copy; <span id="year"></span> KWT Sri Tanjung — Kelompok Wanita Tani Padukuhan Ngramang, Kalurahan Kedungsari. Semua hak dilindungi.</p>
+    <p class="footer-bottom">&copy; <span id="year"></span> KWT Sri Tanjung — Kelompok Wanita Tani Padukuhan Ngramang, Kalurahan Kedungsari. Semua hak dilindungi. · <a href="laporanPenjualan.html" class="footer-admin-link">Admin</a></p>
   </div>
 </footer>
 
@@ -1374,6 +1397,31 @@ h1,h2,h3,h4{
   </div>
 </div>
 
+<!-- ============ Buyer Form Modal (data pembeli sebelum checkout) ============ -->
+<div class="confirm-overlay" id="buyerOverlay"></div>
+<div class="confirm-modal buyer-modal" id="buyerModal" role="dialog" aria-modal="true" aria-labelledby="buyerModalTitle">
+  <div class="confirm-icon">🧍</div>
+  <h4 id="buyerModalTitle">Data Pembeli</h4>
+  <p class="buyer-intro">Isi data berikut supaya pesanan Anda tercatat rapi dan gampang dikonfirmasi Admin.</p>
+  <div class="buyer-field">
+    <label for="buyerNama">Nama Anda *</label>
+    <input type="text" id="buyerNama" placeholder="Nama lengkap">
+  </div>
+  <div class="buyer-field">
+    <label for="buyerHp">No HP/WA Anda (opsional)</label>
+    <input type="tel" id="buyerHp" placeholder="08xxxxxxxxxx">
+  </div>
+  <div class="buyer-field">
+    <label for="buyerAlamat">Alamat Pengiriman (opsional)</label>
+    <textarea id="buyerAlamat" rows="2" placeholder="Dusun/RT-RW, Kalurahan..."></textarea>
+  </div>
+  <p class="buyer-error" id="buyerError"></p>
+  <div class="confirm-actions">
+    <button type="button" class="btn btn-outline btn-sm" id="buyerCancelBtn">Batal</button>
+    <button type="button" class="btn btn-primary btn-sm" id="buyerOkBtn">Lanjut ke WhatsApp</button>
+  </div>
+</div>
+
 <!-- ============ Lightbox Galeri ============ -->
 <div class="lightbox" id="lightbox">
   <button class="lightbox-close" id="lightboxClose" aria-label="Tutup galeri">×</button>
@@ -1394,6 +1442,18 @@ h1,h2,h3,h4{
 </div>
 
 <script>
+/* ================= Pencatat Pesanan (Log Penjualan per Item) =================
+   CATATAN UNTUK ADMIN/DEVELOPER: Supaya penjualan per item bisa terpantau
+   di Google Sheets, buat backend Apps Script terpisah (lihat file Code.gs
+   yang disediakan bersama file ini), lalu tempel URL Web App hasil deploy-nya
+   di bawah ini (URL diakhiri "/exec").
+
+   Kalau dikosongkan / masih placeholder di bawah, fitur checkout WhatsApp
+   TETAP JALAN NORMAL seperti biasa — cuma pencatatannya yang dilewati diam-diam
+   (tidak akan muncul error apa pun ke pengunjung). Jadi aman ditempel kapan saja
+   setelah Code.gs selesai di-deploy, tanpa harus mengubah bagian lain file ini. */
+const ORDER_LOG_URL = 'https://script.google.com/macros/s/AKfycbxfc0Og5_KD46ddg5xE2LBX20Ymwn70h83_-wPNRn2qUd7F4NDYiQn0m0xINInSsC8/exec'
+
 /* ================= Data Admin (Multi-WA) =================
    CATATAN UNTUK ADMIN: Atur status "online" (true/false) di sini
    secara manual sesuai siapa yang sedang aktif membalas pesan. */
@@ -1422,6 +1482,35 @@ function resolveWaTarget(p){
     return { id:'custom-'+p.wa, name: p.waName || 'Kontak Produk Ini', wa: p.wa, online:true };
   }
   return getDefaultAdmin();
+}
+
+/* Kirim data pesanan (1 grup checkout) ke Google Sheets lewat Web App Apps
+   Script, supaya bisa dipantau penjualan per item DAN siapa pembelinya.
+   Dikirim di LATAR BELAKANG (tidak menunggu/tidak menghalangi) saat tombol
+   checkout diklik, jadi pengunjung tetap langsung diarahkan ke WhatsApp
+   seperti biasa — gagal kirim log (mis. belum di-deploy, tidak ada
+   internet) tidak akan memunculkan error apa pun ke pengunjung. */
+function logOrderToSheet(group, buyer){
+  if(!ORDER_LOG_URL || ORDER_LOG_URL.indexOf('PASTE_URL_WEB_APP') !== -1) return; // belum di-deploy, lewati diam-diam
+  const payload = {
+    items: group.items.map(it => ({
+      name: it.p.name,
+      qty: it.qty,
+      unit: it.p.unit,
+      price: it.p.price,
+      subtotal: it.p.price * it.qty
+    })),
+    wa: group.admin.wa,
+    waName: group.admin.name,
+    buyerNama: buyer ? buyer.nama : '',
+    buyerHp: buyer ? buyer.hp : '',
+    buyerAlamat: buyer ? buyer.alamat : ''
+  };
+  fetch(ORDER_LOG_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // hindari CORS preflight ke Apps Script
+    body: JSON.stringify(payload)
+  }).catch(() => { /* diamkan kalau gagal - jangan ganggu proses checkout WA */ });
 }
 
 /* ================= Data Produk =================
@@ -1458,8 +1547,8 @@ function resolveWaTarget(p){
    utama seperti biasa. Kalau isi keranjang berasal dari nomor WA berbeda-beda,
    tombol checkout otomatis dipecah per nomor tujuan (lihat bagian Cart Logic). */
 const PRODUCTS = [
-  { id:'p1', cat:'sayur', icon:'🥬', imgs:['produk-foto/bayam.jpg'], name:'Bayam Merah Segar', unit:'ikat', price:5000, desc:['Dipetik pagi hari dari pekarangan warga','Segar dan bebas pestisida kimia'], status:'baru' },
-  { id:'p2', cat:'sayur', icon:'🥦', imgs:['produk-foto/kangkung.jpg'], name:'Kangkung Segar', unit:'ikat', price:4000, desc:['Kangkung darat pilihan, renyah','Cocok untuk tumis sehari-hari'], status:null },
+  { id:'p1', cat:'sayur', icon:'🥬', imgs:['produk-foto/bayam.jpg','produk-foto/bayam2.jpg','produk-foto/bayam3.jpg'], name:'Bayam Merah Segar', unit:'ikat', price:5000, desc:['Dipetik pagi hari dari pekarangan warga','Segar dan bebas pestisida kimia'], status:'baru', wa:'628129683690', waName:'Eko Kusrianto' },
+  { id:'p2', cat:'sayur', icon:'🥦', imgs:['produk-foto/kangkung.jpg'], name:'Kangkung Segar', unit:'ikat', price:4000, desc:['Kangkung darat pilihan, renyah','Cocok untuk tumis sehari-hari'], status:null, wa:'628129683690', waName:'Eko Kusrianto' },
   { id:'p3', cat:'sayur', icon:'🌶️', imgs:['produk-foto/cabai.jpg'], name:'Cabai Rawit Segar', unit:'ons', price:8000, desc:['Cabai rawit hasil kebun sendiri','Tingkat kepedasan pas untuk sambal rumahan'], status:'promo', promoPrice:6500 },
   { id:'p4', cat:'sayur', icon:'🍆', imgs:['produk-foto/terong.jpg'], name:'Terong Ungu', unit:'kg', price:9000, desc:['Ukuran sedang, empuk saat diolah','Cocok jadi balado atau lalap'], status:null },
   { id:'p5', cat:'sayur', icon:'🌿', imgs:['produk-foto/kelor.jpg'], name:'Daun Kelor', unit:'bungkus', price:3000, desc:['Daun kelor pilihan, kaya nutrisi','Cocok untuk sayur bening'], status:null },
@@ -1471,7 +1560,7 @@ const PRODUCTS = [
   { id:'p11', cat:'olahan', icon:'🫙', imgs:['produk-foto/kunyit_asam.jpg'], name:'Jamu Kunyit Asam', unit:'botol 350ml', price:10000, desc:['Menyegarkan, resep turun-temurun','Cocok diminum setiap hari'], status:null },
   { id:'p12', cat:'olahan', icon:'🍯', imgs:['produk-foto/wedang_uwuh.jpg'], name:'Wedang Uwuh Instan', unit:'bungkus', price:13000, desc:['Rempah pilihan khas Jawa','Nikmat diseduh hangat'], status:null },
   { id:'p13', cat:'ikan', icon:'🐟', imgs:['produk-foto/lele.jpg'], name:'Ikan Lele', unit:'kg', price:25000, desc:['Ikan lele','Hasil budidaya'], status:null },
-  { id:'p14', cat:'ternak', icon:'🐐', imgs:['produk-foto/kambing.jpg'], name:'Kambing Jawa', unit:'ekor', price:3500000, desc:['Diternak oleh anggota KWT','Daging tebal, kering'], status:'baru' },
+  { id:'p14', cat:'ternak', icon:'🐐', imgs:['produk-foto/kambing.jpg','produk-foto/kambing2.jpg','produk-foto/kambing3.jpg'], name:'Kambing Jawa', unit:'ekor', price:3500000, desc:['Diternak oleh anggota KWT','Daging tebal, kering'], status:'baru' },
 ];
 
 const CAT_LABEL = { sayur:'Sayur & Kebun', olahan:'Olahan Pangan', ikan:'Perikanan', ternak:'Peternakan', kerajinan:'Kerajinan', lain:'Lain-lain' };
@@ -1650,17 +1739,33 @@ function updateCartUI(){
 
   checkoutButtonsEl.innerHTML = '';
   groupList.forEach((g, gi) => {
-    let msg = 'Halo KWT Sri Tanjung, saya ingin memesan:\n';
-    g.items.forEach((it, i) => {
-      msg += `${i+1}. ${it.p.name} x${it.qty} (Rp ${(it.p.price*it.qty).toLocaleString('id-ID')})\n`;
-    });
-    msg += `\nEstimasi total: Rp ${g.subtotal.toLocaleString('id-ID')}\n\nNama: \nAlamat: \n\nMohon konfirmasi ketersediaan, harga, dan ongkos kirim. Terima kasih 🙏`;
-
     const wrap = document.createElement('div');
     wrap.className = 'checkout-group';
     wrap.innerHTML = `
       ${groupList.length > 1 ? `<div class="checkout-group-label"><span>Kirim ke ${g.admin.name}</span><strong>Rp ${g.subtotal.toLocaleString('id-ID')}</strong></div>` : ''}
-      <a href="${waLink(g.admin, msg)}" target="_blank" rel="noopener" class="btn btn-wa">💬 Checkout${groupList.length > 1 ? ` ke ${g.admin.name}` : ' via WhatsApp'}</a>`;
+      <button type="button" class="btn btn-wa js-checkout-btn">💬 Checkout${groupList.length > 1 ? ` ke ${g.admin.name}` : ' via WhatsApp'}</button>`;
+
+    wrap.querySelector('.js-checkout-btn').addEventListener('click', async () => {
+      const buyer = await showBuyerForm();
+      if(!buyer) return; // pembeli membatalkan isian data
+
+      let msg = 'Halo KWT Sri Tanjung, saya ingin memesan:\n';
+      g.items.forEach((it, i) => {
+        msg += `${i+1}. ${it.p.name} x${it.qty} (Rp ${(it.p.price*it.qty).toLocaleString('id-ID')})\n`;
+      });
+      msg += `\nEstimasi total: Rp ${g.subtotal.toLocaleString('id-ID')}\n\nNama: ${buyer.nama}\nAlamat: ${buyer.alamat || '-'}\n\nMohon konfirmasi ketersediaan, harga, dan ongkos kirim. Terima kasih 🙏`;
+
+      logOrderToSheet(g, buyer);
+      window.open(waLink(g.admin, msg), '_blank', 'noopener');
+
+      // Otomatis kosongkan produk yang barusan di-checkout dari keranjang.
+      // Cukup hapus item milik grup ini saja (bukan seluruh keranjang),
+      // supaya aman kalau keranjang berisi campuran produk dari nomor WA
+      // berbeda dan baru sebagian yang di-checkout.
+      g.items.forEach(it => { delete cart[it.p.id]; });
+      saveCart();
+      showToast('Pesanan terkirim, keranjang dikosongkan 🛒');
+    });
     checkoutButtonsEl.appendChild(wrap);
   });
 }
@@ -1743,6 +1848,64 @@ function showConfirm({ icon = '⚠️', title = 'Konfirmasi', message = '', conf
     document.addEventListener('keydown', onEsc);
     confirmOverlay.classList.add('open');
     confirmModal.classList.add('open');
+  });
+}
+
+/* ================= Buyer Form Modal (data pembeli sebelum checkout) =================
+   Dipakai sebelum tombol checkout membuka WhatsApp: menampilkan form Nama
+   (wajib), No HP, dan Alamat (opsional). Data terakhir yang diisi disimpan
+   sementara (lastBuyerInfo) supaya kalau keranjang dipecah ke beberapa
+   Admin/Kontak berbeda, pembeli tidak perlu mengetik ulang dari nol.
+   Mengembalikan Promise -> { nama, hp, alamat } kalau dilanjutkan,
+   atau null kalau dibatalkan. */
+const buyerOverlay = document.getElementById('buyerOverlay');
+const buyerModal = document.getElementById('buyerModal');
+let lastBuyerInfo = { nama:'', hp:'', alamat:'' };
+function showBuyerForm(){
+  return new Promise(resolve => {
+    const namaEl = document.getElementById('buyerNama');
+    const hpEl = document.getElementById('buyerHp');
+    const alamatEl = document.getElementById('buyerAlamat');
+    const errEl = document.getElementById('buyerError');
+    namaEl.value = lastBuyerInfo.nama;
+    hpEl.value = lastBuyerInfo.hp;
+    alamatEl.value = lastBuyerInfo.alamat;
+    errEl.classList.remove('show');
+
+    const okBtn = document.getElementById('buyerOkBtn');
+    const cancelBtn = document.getElementById('buyerCancelBtn');
+
+    function close(result){
+      buyerOverlay.classList.remove('open');
+      buyerModal.classList.remove('open');
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      buyerOverlay.removeEventListener('click', onCancel);
+      document.removeEventListener('keydown', onEsc);
+      resolve(result);
+    }
+    function onOk(){
+      const nama = namaEl.value.trim();
+      if(!nama){
+        errEl.textContent = 'Nama wajib diisi.';
+        errEl.classList.add('show');
+        namaEl.focus();
+        return;
+      }
+      const info = { nama, hp: hpEl.value.trim(), alamat: alamatEl.value.trim() };
+      lastBuyerInfo = info;
+      close(info);
+    }
+    function onCancel(){ close(null); }
+    function onEsc(ev){ if(ev.key === 'Escape') onCancel(); }
+
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    buyerOverlay.addEventListener('click', onCancel);
+    document.addEventListener('keydown', onEsc);
+    buyerOverlay.classList.add('open');
+    buyerModal.classList.add('open');
+    setTimeout(() => namaEl.focus(), 50);
   });
 }
 
