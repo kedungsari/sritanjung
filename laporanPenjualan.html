@@ -188,7 +188,7 @@ input, select{ font-family: inherit; }
 .table-header h3{ font-size:1rem; }
 .table-count{ font-size:0.8rem; color: var(--ink-soft); background: var(--cream); padding:4px 12px; border-radius:100px; }
 .table-scroll{ overflow-x:auto; }
-table{ width:100%; border-collapse:collapse; font-size:0.85rem; min-width:720px; }
+table{ width:100%; border-collapse:collapse; font-size:0.85rem; min-width:1020px; }
 thead th{
   text-align:left; padding:10px 12px;
   background: var(--green-deep); color:#fff;
@@ -407,6 +407,9 @@ td.num{ text-align:right; font-variant-numeric: tabular-nums; }
               <th>Total</th>
               <th>No WA Tujuan</th>
               <th>Admin/Kontak</th>
+              <th>Nama Pembeli</th>
+              <th>No HP Pembeli</th>
+              <th>Alamat Pembeli</th>
             </tr>
           </thead>
           <tbody id="dataTableBody"></tbody>
@@ -447,7 +450,7 @@ td.num{ text-align:right; font-variant-numeric: tabular-nums; }
    ORDER_LOG_URL di index.html (harus proyek Code.gs yang sama, karena
    laporan ini membaca dari Sheet yang sama). Lihat komentar "CARA DEPLOY"
    di paling atas file Code.gs untuk cara mengatur kata sandi (ADMIN_TOKEN). */
-const API_URL = 'https://script.google.com/macros/s/AKfycbxH7sG_jXsXaGZX6W88wxADm1862lTTWd0MDRPY63tylEX_cZw7R95K1JC3hTWSx7dJ/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxfc0Og5_KD46ddg5xE2LBX20Ymwn70h83_-wPNRn2qUd7F4NDYiQn0m0xINInSsC8/exec';
 
 /* ================= State ================= */
 let allData = [];       // seluruh data dari server (belum difilter)
@@ -785,6 +788,9 @@ function renderTable(data){
       <td class="num">${formatRupiah(d.total)}</td>
       <td>${d.noWa||'-'}</td>
       <td>${d.namaAdmin||'-'}</td>
+      <td>${d.buyerNama||'-'}</td>
+      <td>${d.buyerHp||'-'}</td>
+      <td>${d.buyerAlamat||'-'}</td>
     </tr>`).join('');
 }
 
