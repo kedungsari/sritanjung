@@ -147,6 +147,31 @@ input, select{ font-family: inherit; }
   color: var(--ink);
 }
 .filter-field input:focus, .filter-field select:focus{ outline:none; border-color: var(--green); background:#fff; }
+
+/* Dropdown saran nama pembeli (live autocomplete) */
+.buyer-filter-wrap{ position:relative; }
+.buyer-suggest{
+  display:none;
+  position:absolute; top:calc(100% + 5px); left:0; right:0;
+  background: var(--paper);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  max-height:230px;
+  overflow-y:auto;
+  z-index:60;
+}
+.buyer-suggest.open{ display:block; }
+.buyer-suggest-item{
+  padding:9px 14px;
+  font-size:0.86rem;
+  cursor:pointer;
+  display:flex; justify-content:space-between; align-items:center; gap:0.7rem;
+  border-bottom:1px solid rgba(46,74,28,0.06);
+}
+.buyer-suggest-item:last-child{ border-bottom:none; }
+.buyer-suggest-item:hover, .buyer-suggest-item.active{ background: var(--cream); }
+.buyer-suggest-item small{ color: var(--ink-soft); font-size:0.74rem; white-space:nowrap; }
+.buyer-suggest-empty{ padding:10px 14px; font-size:0.82rem; color: var(--ink-soft); }
 .filter-actions{ display:flex; gap:0.7rem; flex-wrap:wrap; }
 .filter-actions .btn{ padding:9px 18px; font-size:0.85rem; }
 
@@ -358,9 +383,10 @@ td.num{ text-align:right; font-variant-numeric: tabular-nums; }
             <option value="">Semua Admin/Kontak</option>
           </select>
         </div>
-        <div class="filter-field">
+        <div class="filter-field buyer-filter-wrap">
           <label for="buyerFilter">Nama Pembeli</label>
-          <input type="text" id="buyerFilter" placeholder="Cari nama pembeli...">
+          <input type="text" id="buyerFilter" placeholder="Cari nama pembeli..." autocomplete="off">
+          <div class="buyer-suggest" id="buyerSuggest"></div>
         </div>
       </div>
       <div class="filter-actions">
@@ -699,14 +725,102 @@ document.getElementById('applyFilterBtn').addEventListener('click', () => {
   applyFilter();
   showToast(`Filter diterapkan — ${filteredData.length} baris ditemukan.`);
 });
-document.getElementById('buyerFilter').addEventListener('keydown', e => {
-  if(e.key === 'Enter') document.getElementById('applyFilterBtn').click();
+
+/* ---- Dropdown saran nama pembeli (live autocomplete) ----
+   Muncul otomatis saat mengetik di kolom "Nama Pembeli", diambil dari
+   nama-nama pembeli yang sudah pernah tercatat. Mengetik juga langsung
+   menyaring tabel/grafik secara live (dengan jeda singkat supaya tidak
+   render berkali-kali tiap huruf), tanpa perlu klik "Terapkan Filter". */
+const buyerInput = document.getElementById('buyerFilter');
+const buyerSuggestBox = document.getElementById('buyerSuggest');
+let buyerSuggestActive = -1;
+let buyerFilterTimer;
+
+function getBuyerSuggestions(query){
+  const q = query.trim().toLowerCase();
+  const tally = {};
+  allData.forEach(d => {
+    const nama = (d.buyerNama || '').trim();
+    if(!nama || nama === '-') return;
+    tally[nama] = (tally[nama] || 0) + 1;
+  });
+  let names = Object.keys(tally);
+  if(q) names = names.filter(n => n.toLowerCase().includes(q));
+  return names.sort((a,b) => a.localeCompare(b, 'id')).slice(0, 8).map(n => ({ nama: n, baris: tally[n] }));
+}
+
+function renderBuyerSuggest(query){
+  const items = getBuyerSuggestions(query);
+  buyerSuggestActive = -1;
+  if(!items.length){
+    buyerSuggestBox.innerHTML = query ? `<div class="buyer-suggest-empty">Tidak ada nama pembeli yang cocok.</div>` : '';
+    buyerSuggestBox.classList.toggle('open', !!query);
+    return;
+  }
+  buyerSuggestBox.innerHTML = items.map(it =>
+    `<div class="buyer-suggest-item" data-name="${it.nama}">${it.nama}<small>${it.baris} transaksi</small></div>`
+  ).join('');
+  buyerSuggestBox.classList.add('open');
+}
+
+function closeBuyerSuggest(){
+  buyerSuggestBox.classList.remove('open');
+  buyerSuggestActive = -1;
+}
+
+function pickBuyerSuggestion(nama){
+  buyerInput.value = nama;
+  closeBuyerSuggest();
+  applyFilter();
+  showToast(`Filter diterapkan — ${filteredData.length} baris ditemukan.`);
+}
+
+buyerInput.addEventListener('input', () => {
+  renderBuyerSuggest(buyerInput.value);
+  clearTimeout(buyerFilterTimer);
+  buyerFilterTimer = setTimeout(() => applyFilter(), 220); // live filter, jeda singkat biar tidak render tiap huruf
 });
+buyerInput.addEventListener('focus', () => renderBuyerSuggest(buyerInput.value));
+buyerSuggestBox.addEventListener('click', e => {
+  const item = e.target.closest('.buyer-suggest-item');
+  if(item) pickBuyerSuggestion(item.dataset.name);
+});
+buyerInput.addEventListener('keydown', e => {
+  const items = Array.from(buyerSuggestBox.querySelectorAll('.buyer-suggest-item'));
+  if(e.key === 'ArrowDown' && items.length){
+    e.preventDefault();
+    buyerSuggestActive = Math.min(buyerSuggestActive + 1, items.length - 1);
+    items.forEach((it,i) => it.classList.toggle('active', i === buyerSuggestActive));
+    items[buyerSuggestActive].scrollIntoView({ block:'nearest' });
+  } else if(e.key === 'ArrowUp' && items.length){
+    e.preventDefault();
+    buyerSuggestActive = Math.max(buyerSuggestActive - 1, 0);
+    items.forEach((it,i) => it.classList.toggle('active', i === buyerSuggestActive));
+    items[buyerSuggestActive].scrollIntoView({ block:'nearest' });
+  } else if(e.key === 'Enter'){
+    e.preventDefault();
+    clearTimeout(buyerFilterTimer);
+    if(buyerSuggestActive >= 0 && items[buyerSuggestActive]){
+      pickBuyerSuggestion(items[buyerSuggestActive].dataset.name);
+    } else {
+      closeBuyerSuggest();
+      applyFilter();
+      showToast(`Filter diterapkan — ${filteredData.length} baris ditemukan.`);
+    }
+  } else if(e.key === 'Escape'){
+    closeBuyerSuggest();
+  }
+});
+document.addEventListener('click', e => {
+  if(!e.target.closest('.buyer-filter-wrap')) closeBuyerSuggest();
+});
+
 document.getElementById('resetFilterBtn').addEventListener('click', () => {
   document.getElementById('dateFrom').value = '';
   document.getElementById('dateTo').value = '';
   document.getElementById('adminFilter').value = '';
   document.getElementById('buyerFilter').value = '';
+  closeBuyerSuggest();
   applyFilter();
   showToast('Filter direset — menampilkan semua data.');
 });
